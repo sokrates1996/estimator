@@ -12,137 +12,80 @@
       --dark:    #34495e;
     }
     body {
-      margin: 0; padding: 2rem;
+      margin:0; padding:2rem;
       font-family: Arial, sans-serif;
       background: var(--light);
     }
     .invoice-container {
       position: relative;
       max-width: 800px; margin: auto;
-      background: #fff; border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      padding: 2rem;
-      overflow: visible;
+      background: #fff; border-radius:8px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.08);
+      padding:2rem; overflow:visible;
     }
-    /* watermark behind everything */
+    /* watermark */
     .invoice-container::before {
-      content: "";
-      position: absolute; inset: 0;
+      content:""; position:absolute; inset:0;
       background:
-        linear-gradient(
-          135deg,
-          rgba(255,153,204,0.1),
-          rgba(153,204,255,0.1)
-        ),
+        linear-gradient(135deg, rgba(255,153,204,0.1), rgba(153,204,255,0.1)),
         url("splashedpaint.jpg") center/cover no-repeat;
-      opacity: 0.15;
-      z-index: 0;
+      opacity:0.15; z-index:0;
     }
-    .invoice-container > *, .invoice-container * {
-      position: relative;
-      z-index: 1;
+    .invoice-container>*, .invoice-container * {
+      position: relative; z-index:1;
     }
-    /* hide UI during PDF export */
     .invoice-container.hide-ui .actions,
-    .invoice-container.hide-ui .add-row {
+    .invoice-container.hide-ui .add-row,
+    .invoice-container.hide-ui .add-title {
       display: none !important;
     }
 
     /* header */
-    .invoice-header {
-      display: flex; justify-content: space-between; align-items: center;
-    }
-    .company-left {
-      display: flex; align-items: center;
-    }
-    .logo {
-      height: 120px; margin-right: 1rem;
-    }
-    .company-name {
-      font-size: 1.8rem;
-      color: var(--primary);
-      margin: 0;
-    }
+    .invoice-header { display:flex; justify-content:space-between; align-items:center; }
+    .company-left { display:flex; align-items:center; }
+    .logo { height:120px; margin-right:1rem; }
+    .company-name { font-size:1.8rem; color:var(--primary); margin:0; }
 
     /* meta & recipient */
-    .invoice-meta {
-      background: var(--mid);
-      color: #fff;
-      padding: 1rem;
-      border-radius: 4px;
-      width: 200px;
-      font-size: 0.9rem;
+    .invoice-meta { background:var(--mid); color:#fff; padding:1rem; border-radius:4px; width:200px; font-size:0.9rem; }
+    .meta-row { display:flex; justify-content:space-between; margin-bottom:0.5rem; }
+    .meta-row input { width:80px; border:none; border-radius:2px; padding:0.2rem; }
+    .meta-total { background:var(--dark); padding:0.6rem; border-radius:3px; display:flex; justify-content:space-between; font-weight:bold; }
+    .recipient { margin-top:2rem; text-transform:uppercase; font-size:0.9rem; }
+    .recipient input { width:100%; border:none; border-bottom:1px solid var(--mid); margin-bottom:0.5rem; padding:0.3rem 0; }
+
+    /* editable title */
+    .section-title {
+      font-size:1.3rem; margin-top:2rem; margin-bottom:0.5rem;
+      color: var(--primary); position:relative;
     }
-    .meta-row {
-      display: flex; justify-content: space-between;
-      margin-bottom: 0.5rem;
-    }
-    .meta-row input {
-      width: 80px; border: none; border-radius: 2px;
-      padding: 0.2rem;
-    }
-    .meta-total {
-      background: var(--dark);
-      padding: 0.6rem;
-      border-radius: 3px;
-      display: flex; justify-content: space-between;
-      font-weight: bold;
-    }
-    .recipient {
-      margin-top: 2rem;
-      text-transform: uppercase;
-      font-size: 0.9rem;
-    }
-    .recipient input {
-      width: 100%;
-      border: none;
-      border-bottom: 1px solid var(--mid);
-      margin-bottom: 0.5rem;
-      padding: 0.3rem 0;
+    .section-title[contenteditable] { outline:2px dashed var(--accent); padding:0.2rem; }
+    .section-title .move-btn {
+      position:absolute; top:0; right:0; font-size:0.8rem;
+      background:var(--mid); color:#fff; border:none; cursor:pointer;
+      padding:0 4px; margin-left:2px; border-radius:3px;
     }
 
-    /* table styling for on‑screen only */
-    table {
-      width: 100%;
-      margin-top: 2rem;
-      border-collapse: collapse;
-    }
+    /* table */
+    table, th, td { border:none!important; background:transparent!important; }
+    table { width:100%; margin-top:2rem; border-collapse:collapse; }
     th, td {
-      /* remove all borders & backgrounds */
-      border: none !important;
-      background: transparent !important;
-      padding: 0.5rem 0;
-      line-height: 1.4;
+      padding:0.4rem 0; vertical-align:top; line-height:1.4;
     }
-    th {
-      font-weight: bold;
-    }
-    td.editable {
-      cursor: text;
-    }
-    td.editable:empty:before {
-      content: attr(data-placeholder);
-      color: #aaa;
-    }
+    td.editable { cursor:text; }
+    td.editable:empty:before { content:attr(data-placeholder); color:#aaa; }
 
     /* controls */
-    .add-row, .actions button {
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      padding: 0.6rem 1rem;
-      cursor: pointer;
-      font-size: 0.95rem;
-      margin-top: 0.5rem;
+    .toolbar {
+      margin-top:1.5rem; text-align:right;
     }
-    .add-row:hover, .actions button:hover {
-      background: var(--dark);
+    .toolbar button {
+      background:var(--accent); color:#fff; border:none;
+      border-radius:4px; padding:0.5rem 1rem;
+      cursor:pointer; font-size:0.9rem; margin-left:0.5rem;
     }
-    .actions {
-      margin-top: 2rem;
-      text-align: right;
-    }
+    .toolbar button:hover { background:var(--dark); }
+    .actions { margin-top:2rem; text-align:right; }
   </style>
 </head>
 <body>
@@ -171,6 +114,14 @@
       <input id="clientPhone" placeholder="(555) 000‑0000">
     </section>
 
+    <!-- Toolbar for adding titles -->
+    <div class="toolbar">
+      <button id="addTitle" class="add-title">+ Add Title</button>
+    </div>
+
+    <!-- Where section titles will go -->
+    <div id="titlesContainer"></div>
+
     <table id="itemsTable">
       <thead>
         <tr>
@@ -192,140 +143,164 @@
   </div>
 
   <script>
-    (()=>{
-      const { jsPDF } = window.jspdf;
-      const tbody     = document.querySelector('#itemsTable tbody');
-      const invTotal  = document.getElementById('invTotal');
+  (()=>{
+    const { jsPDF } = window.jspdf;
+    const titlesContainer = document.getElementById('titlesContainer');
+    const tbody           = document.querySelector('#itemsTable tbody');
+    const invTotal        = document.getElementById('invTotal');
 
-      // make an editable <td>
-      function makeCell(placeholder){
-        const td = document.createElement('td');
-        td.className       = 'editable';
-        td.contentEditable = 'true';
-        td.setAttribute('data-placeholder', placeholder);
-        return td;
+    // Create a new editable title with move buttons
+    document.getElementById('addTitle').onclick = () => {
+      const h2 = document.createElement('h2');
+      h2.className = 'section-title';
+      h2.contentEditable = 'true';
+      h2.textContent = 'New Section Title';
+      // move up button
+      const up = document.createElement('button');
+      up.className = 'move-btn';
+      up.textContent = '↑';
+      up.onclick = () => titlesContainer.insertBefore(h2, h2.previousElementSibling);
+      // move down button
+      const dn = document.createElement('button');
+      dn.className = 'move-btn';
+      dn.textContent = '↓';
+      dn.onclick = () => {
+        const next = h2.nextElementSibling;
+        if(next) titlesContainer.insertBefore(next, h2);
+      };
+      h2.appendChild(up);
+      h2.appendChild(dn);
+      titlesContainer.appendChild(h2);
+      h2.focus();
+    };
+
+    // make an editable <td>
+    function makeCell(placeholder){
+      const td = document.createElement('td');
+      td.className       = 'editable';
+      td.contentEditable = 'true';
+      td.setAttribute('data-placeholder', placeholder);
+      return td;
+    }
+
+    // add data row
+    document.getElementById('addRow').onclick = () => {
+      const tr = document.createElement('tr');
+      tr.appendChild(makeCell('Service'));
+      tr.appendChild(makeCell('Description'));
+      tr.appendChild(makeCell('0'));
+      tr.appendChild(makeCell('0.00'));
+      const tot = document.createElement('td');
+      tot.textContent = '$0.00';
+      tr.appendChild(tot);
+      tbody.appendChild(tr);
+    };
+    // seed one row
+    document.getElementById('addRow').click();
+
+    // compute totals
+    document.getElementById('computeBtn').onclick = () => {
+      let sum = 0;
+      tbody.querySelectorAll('tr').forEach(tr=>{
+        const qty   = parseFloat(tr.cells[2].textContent) || 0;
+        const price = parseFloat(tr.cells[3].textContent) || 0;
+        const line  = qty * price;
+        tr.cells[4].textContent = '$'+line.toFixed(2);
+        sum += line;
+      });
+      invTotal.textContent = '$'+sum.toFixed(2);
+    };
+
+    // load image as dataURL
+    function loadImage(src, alpha=1){
+      return new Promise((res, rej)=>{
+        const img = new Image();
+        img.src = src;
+        img.onload = ()=>{
+          const c = document.createElement('canvas');
+          c.width = img.width; c.height = img.height;
+          const ctx = c.getContext('2d');
+          if(alpha<1) ctx.globalAlpha = alpha;
+          ctx.drawImage(img,0,0);
+          res(c.toDataURL('image/png'));
+        };
+        img.onerror = rej;
+      });
+    }
+
+    // download PDF
+    document.getElementById('downloadBtn').onclick = async ()=>{
+      document.getElementById('computeBtn').click();
+
+      // gather body rows
+      const body = [];
+      tbody.querySelectorAll('tr').forEach(tr=>{
+        body.push([
+          tr.cells[0].textContent.trim(),
+          tr.cells[1].textContent.trim(),
+          tr.cells[2].textContent.trim(),
+          tr.cells[3].textContent.trim(),
+          tr.cells[4].textContent.replace('$','')
+        ]);
+      });
+
+      const doc = new jsPDF({ unit:'pt', format:'letter' });
+      const w = doc.internal.pageSize.getWidth();
+      const h = doc.internal.pageSize.getHeight();
+
+      // watermark
+      const wm = await loadImage('splashedpaint.jpg',0.15);
+      doc.addImage(wm,'PNG',0,0,w,h);
+
+      // logo
+      const logo = await loadImage('elvisofcolour.jpeg');
+      doc.addImage(logo,'PNG',40,40,100,100);
+
+      // header text
+      doc.setFontSize(12)
+         .text(`Invoice #: ${document.getElementById('invNum').value}`,160,60)
+         .text(`Issued: ${document.getElementById('invDate').value}`,160,80)
+         .text(`Due: ${document.getElementById('invDate').value}`,160,100);
+
+      // recipient
+      let y=140;
+      doc.setFontSize(14).text('Recipient:',40,y);
+      y+=18;
+      ['clientName','clientAddress','clientPhone'].forEach(id=>{
+        doc.setFontSize(12).text(document.getElementById(id).value,40,y);
+        y+=16;
+      });
+
+      // section titles
+      if(titlesContainer.children.length){
+        doc.setFontSize(14);
+        Array.from(titlesContainer.children).forEach(title=>{
+          doc.text(title.textContent.replace(/↑|↓/g,''),40,y);
+          y+=20;
+        });
       }
 
-      // add a new row
-      document.getElementById('addRow').onclick = () => {
-        const tr = document.createElement('tr');
-        tr.appendChild(makeCell('Service'));
-        tr.appendChild(makeCell('Description'));
-        tr.appendChild(makeCell('0'));
-        tr.appendChild(makeCell('0.00'));
-        const tot = document.createElement('td');
-        tot.textContent = '$0.00';
-        tr.appendChild(tot);
-        tbody.appendChild(tr);
-      };
-      // seed one row
-      document.getElementById('addRow').click();
+      // table
+      doc.autoTable({
+        startY: y+10,
+        margin:{left:40,right:40},
+        head:[['Service','Description','Qty','Unit Price','Line Total']],
+        body,
+        theme:'plain',
+        styles:{ fontSize:10, overflow:'linebreak', cellPadding:4 },
+        columnStyles:{
+          0:{cellWidth:80},1:{cellWidth:250},2:{cellWidth:40},3:{cellWidth:60},4:{cellWidth:60}
+        }
+      });
 
-      // compute totals
-      document.getElementById('computeBtn').onclick = () => {
-        let sum = 0;
-        tbody.querySelectorAll('tr').forEach(tr => {
-          const qty   = parseFloat(tr.cells[2].textContent) || 0;
-          const price = parseFloat(tr.cells[3].textContent) || 0;
-          const line  = qty * price;
-          tr.cells[4].textContent = '$' + line.toFixed(2);
-          sum += line;
-        });
-        invTotal.textContent = '$' + sum.toFixed(2);
-      };
+      // total
+      const fy = doc.lastAutoTable.finalY + 20;
+      doc.setFontSize(14).text(`Total: ${invTotal.textContent}`,w-40,fy,{align:'right'});
 
-      // helper for watermark/logo
-      function loadImageDataURL(src, alpha=1){
-        return new Promise((res, rej) => {
-          const img = new Image();
-          img.src = src;
-          img.onload = () => {
-            const c = document.createElement('canvas');
-            c.width = img.width; c.height = img.height;
-            const ctx = c.getContext('2d');
-            if(alpha<1) ctx.globalAlpha = alpha;
-            ctx.drawImage(img,0,0);
-            res(c.toDataURL('image/png'));
-          };
-          img.onerror = rej;
-        });
-      }
+      doc.save('estimate.pdf');
+    };
 
-      // download PDF
-      document.getElementById('downloadBtn').onclick = async () => {
-        // ensure totals up to date
-        document.getElementById('computeBtn').click();
-
-        // collect table data
-        const body = [];
-        tbody.querySelectorAll('tr').forEach(tr => {
-          body.push([
-            tr.cells[0].textContent.trim(),
-            tr.cells[1].textContent.trim(),
-            tr.cells[2].textContent.trim(),
-            tr.cells[3].textContent.trim(),
-            tr.cells[4].textContent.replace('$','')
-          ]);
-        });
-
-        // init jsPDF
-        const doc = new jsPDF({ unit:'pt', format:'letter' });
-        const pageW = doc.internal.pageSize.getWidth();
-        const pageH = doc.internal.pageSize.getHeight();
-
-        // watermark
-        const wm = await loadImageDataURL('splashedpaint.jpg', 0.15);
-        doc.addImage(wm, 'PNG', 0, 0, pageW, pageH);
-
-        // logo
-        const logoData = await loadImageDataURL('elvisofcolour.jpeg');
-        // draw at (40,40) with 100px width
-        doc.addImage(logoData, 'PNG', 40, 40, 100, 100);
-
-        // header text
-        doc.setFontSize(12)
-           .text(`Invoice #: ${document.getElementById('invNum').value}`, 160, 60)
-           .text(`Issued: ${document.getElementById('invDate').value}`, 160, 80)
-           .text(`Due: ${document.getElementById('dueDate').value}`, 160, 100);
-
-        // recipient
-        let y = 140;
-        doc.setFontSize(14).text('Recipient:', 40, y);
-        y += 18;
-        ['clientName','clientAddress','clientPhone'].forEach(id => {
-          doc.setFontSize(12).text(document.getElementById(id).value, 40, y);
-          y += 16;
-        });
-
-        // draw the table with no borders
-        doc.autoTable({
-          startY: y + 10,
-          margin: { left: 40, right: 40 },
-          head: [['Service','Description','Qty','Unit Price','Line Total']],
-          body,
-          theme: 'plain',
-          styles: {
-            fontSize: 10,
-            overflow: 'linebreak',
-            cellPadding: 4
-          },
-          columnStyles: {
-            0: { cellWidth: 80 },
-            1: { cellWidth: 250 },
-            2: { cellWidth: 40 },
-            3: { cellWidth: 60 },
-            4: { cellWidth: 60 }
-          }
-        });
-
-        // grand total
-        const finalY = doc.lastAutoTable.finalY + 20;
-        doc.setFontSize(14)
-           .text(`Total: ${invTotal.textContent}`, pageW - 40, finalY, { align: 'right' });
-
-        doc.save('estimate.pdf');
-      };
-    })();
+  })();
   </script>
 </body>
 </html>
