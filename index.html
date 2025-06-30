@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Elvis of Colours Estimator</title>
+  <style>
+    :root {
+      --primary: #2c3e50;
+      --accent:  #2980b9;
+      --light:   #ecf0f1;
+      --mid:     #bdc3c7;
+      --dark:    #34495e;
+    }
+    body {
+      background: var(--light);
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      padding: 2rem;
+      margin: 0;
+    }
+    .invoice-container {
+      position: relative;
+      max-width: 800px;
+      margin: auto;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      padding: 2rem;
+      overflow: hidden;
+    }
+    /* watermark as a real <img> */
+    .watermark-img {
+      position: absolute;
+      inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      opacity: 0.05;
+      z-index: 0;
+    }
+    /* content above watermark */
+    .invoice-container > *:not(.watermark-img) {
+      position: relative;
+      z-index: 1;
+    }
+    .invoice-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .company-left {
+      display: flex;
+      align-items: center;
+    }
+    .logo {
+      height: 60px;
+      margin-right: 1rem;
+    }
+    .company-name {
+      margin: 0;
+      color: var(--primary);
+      font-size: 1.8rem;
+    }
+    .invoice-meta {
+      background: var(--mid);
+      border-radius: 4px;
+      padding: 1rem;
+      color: #fff;
+      width: 200px;
+      font-size: 0.9rem;
+    }
+    .invoice-meta .meta-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+    .invoice-meta label { font-weight: bold; }
+    .invoice-meta input {
+      width: 80px;
+      border: none;
+      border-radius: 2px;
+      padding: 0.2rem;
+    }
+    .invoice-meta .meta-total {
+      background: var(--dark);
+      padding: 0.6rem;
+      border-radius: 3px;
+      display: flex;
+      justify-content: space-between;
+      font-weight: bold;
+      margin-top: 0.5rem;
+    }
+    .recipient {
+      margin-top: 2rem;
+      text-transform: uppercase;
+      font-size: 0.9rem;
+    }
+    .recipient strong { display: block; margin-bottom: 0.3rem; }
+    .recipient input {
+      display: block;
+      width: 100%;
+      border: none;
+      border-bottom: 1px solid var(--mid);
+      margin-bottom: 0.5rem;
+      padding: 0.3rem 0;
+    }
+    .section-title {
+      margin-top: 2rem;
+      border-bottom: 1px solid var(--mid);
+      padding-bottom: 0.3rem;
+      color: var(--primary);
+      font-size: 1.2rem;
+    }
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    .items-table th {
+      background: var(--light);
+      color: var(--primary);
+      text-align: left;
+      padding: 0.6rem;
+      font-weight: normal;
+    }
+    .items-table td {
+      border-bottom: 1px solid #eee;
+      padding: 0.6rem;
+    }
+    .items-table input,
+    .items-table textarea {
+      width: 100%;
+      border: 1px solid var(--mid);
+      border-radius: 3px;
+      padding: 0.3rem;
+      box-sizing: border-box;
+    }
+    .items-table textarea { resize: vertical; }
+    .add-btn,
+    .actions button {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 0.4rem 0.8rem;
+      margin-top: 0.5rem;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .add-btn:hover,
+    .actions button:hover { background: var(--dark); }
+    .actions { margin-top: 2rem; text-align: right; }
+  </style>
+</head>
+<body>
+
+  <!-- html2pdf library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+
+  <div id="invoiceCard" class="invoice-container">
+    <!-- Replace with your multi‑color tribal pattern URL -->
+    <img src="YOUR_TRIBAL_PATTERN_URL" class="watermark-img" alt="Watermark">
+
+    <header class="invoice-header">
+      <div class="company-left">
+        <img src="https://i.imgur.com/nIdc6aB.jpeg" class="logo" alt="Elvis Of Colours Logo">
+        <h1 class="company-name">Elvis Of Colours</h1>
+      </div>
+      <div class="invoice-meta">
+        <div class="meta-row">
+          <label>Invoice #</label>
+          <input type="text" id="invoiceNumber" value="0001">
+        </div>
+        <div class="meta-row">
+          <label>Issued</label>
+          <input type="date" id="issueDate">
+        </div>
+        <div class="meta-row">
+          <label>Due</label>
+          <input type="date" id="dueDate">
+        </div>
+        <div class="meta-total">
+          <span>Total</span>
+          <span id="invoiceTotal">$0.00</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="recipient">
+      <strong>RECIPIENT:</strong>
+      <input type="text" id="clientName" placeholder="Client Name">
+      <input type="text" id="clientAddress" placeholder="123 Main St, City, ST ZIP">
+      <input type="text" id="clientPhone" placeholder="(555) 000‑0000">
+    </section>
+
+    <h2 class="section-title">For Services Rendered</h2>
+    <table class="items-table" id="itemsTable">
+      <thead>
+        <tr>
+          <th style="width:20%">Product/Service</th>
+          <th>Description</th>
+          <th style="width:10%">Qty.</th>
+          <th style="width:15%">Unit Price</th>
+          <th style="width:15%">Line Total</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <button id="addItem" class="add-btn">+ Add Item</button>
+
+    <div class="actions">
+      <button id="computeBtn">Compute Total</button>
+      <button id="downloadBtn">Download PDF</button>
+    </div>
+  </div>
+
+  <script>
+    // 1) add item row
+    function addItemRow() {
+      const tbody = document.querySelector('#itemsTable tbody');
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><input type="text" placeholder="Service"></td>
+        <td><textarea rows="2" placeholder="Description…"></textarea></td>
+        <td><input type="number" value="0"></td>
+        <td><input type="number" value="0" step="0.01"></td>
+        <td class="line-total">$0.00</td>
+      `;
+      tbody.appendChild(tr);
+    }
+    document.getElementById('addItem').addEventListener('click', addItemRow);
+
+    // 2) compute totals
+    document.getElementById('computeBtn').addEventListener('click', () => {
+      let sum = 0;
+      document.querySelectorAll('#itemsTable tbody tr').forEach(tr => {
+        const qty   = parseFloat(tr.children[2].querySelector('input').value) || 0;
+        const price = parseFloat(tr.children[3].querySelector('input').value) || 0;
+        const line  = qty * price;
+        tr.querySelector('.line-total').textContent = '$' + line.toFixed(2);
+        sum += line;
+      });
+      document.getElementById('invoiceTotal').textContent = '$' + sum.toFixed(2);
+    });
+
+    // 3) download clean PDF
+    document.getElementById('downloadBtn').addEventListener('click', () => {
+      const orig = document.getElementById('invoiceCard');
+      const clone = orig.cloneNode(true);
+      clone.style.position = 'absolute';
+      clone.style.top = '-9999px';
+      document.body.appendChild(clone);
+
+      // remove UI buttons
+      clone.querySelectorAll('.add-btn, .actions').forEach(el => el.remove());
+      // swap inputs for text
+      clone.querySelectorAll('input, textarea').forEach(el => {
+        const span = document.createElement('span');
+        span.textContent = el.value;
+        if (el.tagName.toLowerCase() === 'textarea') span.style.whiteSpace = 'pre-wrap';
+        el.parentNode.replaceChild(span, el);
+      });
+
+      html2pdf().set({
+        margin:    0.5,
+        filename:  'estimate.pdf',
+        jsPDF:     { unit: 'in', format: 'letter', orientation: 'portrait' }
+      })
+      .from(clone)
+      .save()
+      .finally(() => document.body.removeChild(clone));
+    });
+  </script>
+</body>
+</html>
