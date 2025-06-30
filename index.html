@@ -4,233 +4,203 @@
   <meta charset="UTF-8">
   <title>Elvis of Colours Estimator</title>
   <style>
+    :root {
+      --primary: #2c3e50;
+      --accent:  #2980b9;
+      --light:   #ecf0f1;
+      --mid:     #bdc3c7;
+      --dark:    #34495e;
+    }
     body {
-      margin: 0; padding: 2rem;
+      margin:0; padding:2rem;
       font-family: Arial, sans-serif;
-      background: #f0f0f0;
+      background: var(--light);
     }
-    #invoice {
-      max-width: 800px;
-      margin: auto;
-      background: #fff;
-      padding: 2rem;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    .invoice-container {
+      position: relative;
+      max-width: 800px; margin: auto;
+      background: #fff; border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      padding: 2rem; overflow: hidden;
     }
-    #invoice header {
-      display: flex; justify-content: space-between; align-items: center;
+    /* CSS tribal watermark */
+    .invoice-container::before {
+      content:""; position:absolute; inset:0;
+      background: repeating-linear-gradient(
+        45deg,
+        rgba(255,153,204,0.1) 0 20px,
+        rgba(153,204,255,0.1) 20px 40px,
+        rgba(153,255,153,0.1) 40px 60px,
+        rgba(255,255,153,0.1) 60px 80px
+      );
+      background-size: cover; z-index: 0;
     }
-    #invoice .company {
-      display: flex; align-items: center;
+    /* hide UI during PDF export */
+    .invoice-container.hide-ui .actions,
+    .invoice-container.hide-ui .add-btn {
+      display: none !important;
     }
-    #invoice .company img {
-      height: 60px; margin-right: 1rem;
+    /* all content above watermark */
+    .invoice-container > * { position: relative; z-index: 1; }
+
+    /* header */
+    .invoice-header { display: flex; justify-content: space-between; align-items: center; }
+    .company-left { display: flex; align-items: center; }
+    .logo { height: 60px; margin-right: 1rem; }
+    .company-name { font-size: 1.8rem; color: var(--primary); margin:0; }
+
+    /* invoice meta */
+    .invoice-meta {
+      background: var(--mid); color: #fff;
+      padding: 1rem; border-radius: 4px; width: 200px;
+      font-size: 0.9rem;
     }
-    #controls {
-      text-align: center; margin-top: 2rem;
+    .meta-row { display: flex; justify-content: space-between; margin-bottom: 0.5rem; }
+    .meta-row input {
+      width: 80px; border: none; border-radius: 2px;
+      padding: 0.2rem;
     }
-    #controls button {
-      background: #2980b9;
-      color: #fff;
-      border: none;
-      padding: 0.6rem 1.2rem;
-      font-size: 1rem;
-      border-radius: 4px;
-      cursor: pointer;
-      margin: 0 0.5rem;
+    .meta-total {
+      background: var(--dark); padding: 0.6rem; border-radius: 3px;
+      display: flex; justify-content: space-between; font-weight: bold;
     }
-    table {
-      width: 100%; border-collapse: collapse; margin-top: 1.5rem;
+
+    /* recipient */
+    .recipient {
+      margin-top: 2rem;
+      text-transform: uppercase;
+      font-size: 0.9rem;
     }
-    th, td {
-      border: 1px solid #ddd;
+    .recipient input {
+      width: 100%; border: none;
+      border-bottom: 1px solid var(--mid);
+      margin-bottom: 0.5rem; padding: 0.3rem 0;
+    }
+
+    /* items table */
+    .section-title {
+      margin-top: 2rem;
+      color: var(--primary);
+      font-size: 1.2rem;
+      border-bottom: 1px solid var(--mid);
+    }
+    .items-table {
+      width: 100%; border-collapse: collapse; margin-top: 1rem;
+    }
+    .items-table th {
+      background: var(--light);
       padding: 0.6rem;
+      font-weight: normal;
       text-align: left;
     }
-    th {
-      background: #f9f9f9;
+    .items-table td {
+      border-bottom: 1px solid #eee;
+      padding: 0.6rem;
     }
-    input, textarea {
-      width: 100%;
+    .items-table input, .items-table textarea {
+      width: 100%; border: 1px solid var(--mid);
+      border-radius: 3px; padding: 0.3rem;
       box-sizing: border-box;
-      padding: 0.4rem;
-      border: 1px solid #ccc;
-      border-radius: 3px;
     }
-    textarea { resize: vertical; }
+    .items-table textarea { resize: vertical; }
+
+    /* buttons */
+    .add-btn, .actions button {
+      background: var(--accent); color: #fff; border: none;
+      border-radius: 4px;
+      padding: 0.4rem 0.8rem; cursor: pointer;
+      font-size: 0.9rem; margin-top: 0.5rem;
+    }
+    .add-btn:hover, .actions button:hover {
+      background: var(--dark);
+    }
+    .actions {
+      margin-top: 2rem; text-align: right;
+    }
   </style>
 </head>
 <body>
-  <div id="invoice">
-    <header>
-      <div class="company">
-        <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD... (your full Base64 string) ..." alt="Elvis Of Colours Logo">
-        <h1>Elvis Of Colours</h1>
+  <!-- html2pdf.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+
+  <div id="invoiceCard" class="invoice-container">
+    <header class="invoice-header">
+      <div class="company-left">
+        <img src="elvisofcolour.jpeg" class="logo" alt="Elvis Of Colours Logo">
+        <h1 class="company-name">Elvis Of Colours</h1>
       </div>
-      <div>
-        Invoice # <input id="invNum" value="0001"><br>
-        Issued <input id="invDate" type="date"><br>
-        Due   <input id="dueDate" type="date">
+      <div class="invoice-meta">
+        <div class="meta-row"><label>Invoice #</label><input id="invoiceNumber" value="0001"></div>
+        <div class="meta-row"><label>Issued</label><input id="issueDate" type="date"></div>
+        <div class="meta-row"><label>Due</label><input id="dueDate" type="date"></div>
+        <div class="meta-total"><span>Total</span><span id="invoiceTotal">$0.00</span></div>
       </div>
     </header>
 
-    <section style="margin-top:2rem;">
+    <section class="recipient">
       <strong>RECIPIENT:</strong><br>
-      <input id="clientName" placeholder="Client Name"><br><br>
-      <input id="clientAddress" placeholder="123 Main St, City, ST ZIP"><br><br>
+      <input id="clientName" placeholder="Client Name"><br>
+      <input id="clientAddress" placeholder="123 Main St, City, ST ZIP"><br>
       <input id="clientPhone" placeholder="(555) 000‑0000">
     </section>
 
-    <h2 style="margin-top:1.5rem;">For Services Rendered</h2>
-    <table id="itemsTable">
+    <h2 class="section-title">For Services Rendered</h2>
+    <table class="items-table" id="itemsTable">
       <thead>
-        <tr>
-          <th>Product/Service</th>
-          <th>Description</th>
-          <th style="width:60px;">Qty.</th>
-          <th style="width:80px;">Unit Price</th>
-          <th style="width:80px;">Line Total</th>
-        </tr>
+        <tr><th>Service</th><th>Description</th><th>Qty.</th><th>Unit Price</th><th>Line Total</th></tr>
       </thead>
       <tbody></tbody>
     </table>
-    <button id="addRow" style="margin-top:0.5rem;">+ Add Item</button>
+    <button id="addItem" class="add-btn">+ Add Item</button>
 
-    <div style="text-align:right; margin-top:1rem;">
-      <strong>Total: </strong><span id="totalAmt">$0.00</span>
+    <div class="actions">
+      <button id="computeBtn">Compute Total</button>
+      <button id="downloadBtn">Download PDF</button>
     </div>
   </div>
 
-  <div id="controls">
-    <button id="compute">Compute Total</button>
-    <button id="download">Download PDF</button>
-  </div>
-
-  <!-- pdfMake libraries -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
   <script>
-    // Your logo embedded as Base64 (paste the entire string here)
-    const logoData = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD...";
+    window.onload = () => {
+      const card = document.getElementById('invoiceCard');
 
-    // Draw the tribal pattern into a data URI
-    function makePattern(w, h) {
-      const c = document.createElement('canvas');
-      c.width = w; c.height = h;
-      const ctx = c.getContext('2d');
-      const size = 80;
-      const pc = document.createElement('canvas');
-      pc.width = pc.height = size;
-      const pctx = pc.getContext('2d');
-      pctx.fillStyle = 'rgba(255,153,204,0.1)'; pctx.fillRect(0,0,40,40);
-      pctx.fillStyle = 'rgba(153,204,255,0.1)'; pctx.fillRect(40,0,40,40);
-      pctx.fillStyle = 'rgba(153,255,153,0.1)'; pctx.fillRect(40,40,40,40);
-      pctx.fillStyle = 'rgba(255,255,153,0.1)'; pctx.fillRect(0,40,40,40);
-      const pat = ctx.createPattern(pc, 'repeat');
-      ctx.fillStyle = pat; ctx.fillRect(0,0,w,h);
-      return c.toDataURL();
-    }
-
-    // Add a new item row
-    document.getElementById('addRow').onclick = () => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td><input placeholder="Service"></td>
-        <td><textarea rows="2" placeholder="Description"></textarea></td>
-        <td><input type="number" value="0"></td>
-        <td><input type="number" value="0" step="0.01"></td>
-        <td class="line">$0.00</td>`;
-      document.querySelector('#itemsTable tbody').appendChild(tr);
-    };
-
-    // Compute line totals and overall total
-    document.getElementById('compute').onclick = () => {
-      let sum = 0;
-      document.querySelectorAll('#itemsTable tbody tr').forEach(tr => {
-        const q = parseFloat(tr.cells[2].querySelector('input').value) || 0;
-        const p = parseFloat(tr.cells[3].querySelector('input').value) || 0;
-        const L = q * p;
-        tr.cells[4].textContent = '$' + L.toFixed(2);
-        sum += L;
-      });
-      document.getElementById('totalAmt').textContent = '$' + sum.toFixed(2);
-    };
-
-    // Generate the PDF
-    document.getElementById('download').onclick = () => {
-      const w = 612, h = 792; // Letter size in points
-      const bgData = makePattern(w, h);
-
-      // Build table body from your rows
-      const body = [];
-      document.querySelectorAll('#itemsTable tbody tr').forEach(tr => {
-        body.push([
-          tr.cells[0].querySelector('input').value,
-          tr.cells[1].querySelector('textarea').value,
-          tr.cells[2].querySelector('input').value,
-          tr.cells[3].querySelector('input').value,
-          tr.cells[4].textContent.replace('$','')
-        ]);
-      });
-
-      const docDef = {
-        pageSize: 'LETTER',
-        pageMargins: [40, 60, 40, 60],
-        background: { image: bgData, width: w, height: h, opacity: 0.1 },
-        images: { logo: logoData },
-        content: [
-          {
-            columns: [
-              { image: 'logo', width: 100 },
-              { text: 'Elvis Of Colours', style: 'title', alignment: 'right' }
-            ]
-          },
-          {
-            columns: [
-              { text: `Invoice #: ${document.getElementById('invNum').value}` },
-              { text: `Issued: ${document.getElementById('invDate').value}`, alignment: 'right' }
-            ]
-          },
-          {
-            columns: [
-              { text: `Due: ${document.getElementById('dueDate').value}` },
-              { text: '' }
-            ], margin: [0, 5, 0, 15]
-          },
-          { text: 'Recipient:', style: 'section' },
-          { text: [
-              document.getElementById('clientName').value + '\n',
-              document.getElementById('clientAddress').value + '\n',
-              document.getElementById('clientPhone').value + '\n'
-            ]
-          },
-          { text: 'For Services Rendered', style: 'section', margin: [0, 15, 0, 5] },
-          {
-            table: {
-              headerRows: 1,
-              widths: ['*','*','auto','auto','auto'],
-              body: [
-                ['Service','Description','Qty','Unit Price','Line Total'],
-                ...body
-              ]
-            },
-            layout: 'lightHorizontalLines'
-          },
-          {
-            text: `Total: ${document.getElementById('totalAmt').textContent}`,
-            style: 'total',
-            alignment: 'right',
-            margin: [0,10,0,0]
-          }
-        ],
-        styles: {
-          title: { fontSize: 18, bold: true, margin: [0,0,0,10] },
-          section: { fontSize: 14, bold: true },
-          total: { fontSize: 14, bold: true }
-        }
+      // Add a new item row
+      document.getElementById('addItem').onclick = () => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><input type="text" placeholder="Service"></td>
+          <td><textarea rows="2" placeholder="Description"></textarea></td>
+          <td><input type="number" value="0"></td>
+          <td><input type="number" value="0" step="0.01"></td>
+          <td class="line-total">$0.00</td>`;
+        document.querySelector('#itemsTable tbody').appendChild(tr);
       };
 
-      pdfMake.createPdf(docDef).download('estimate.pdf');
+      // Compute totals
+      document.getElementById('computeBtn').onclick = () => {
+        let sum = 0;
+        document.querySelectorAll('#itemsTable tbody tr').forEach(tr => {
+          const qty   = parseFloat(tr.cells[2].querySelector('input').value) || 0;
+          const price = parseFloat(tr.cells[3].querySelector('input').value) || 0;
+          const line  = qty * price;
+          tr.querySelector('.line-total').textContent = '$' + line.toFixed(2);
+          sum += line;
+        });
+        document.getElementById('invoiceTotal').textContent = '$' + sum.toFixed(2);
+      };
+
+      // Download PDF
+      document.getElementById('downloadBtn').onclick = () => {
+        card.classList.add('hide-ui');
+        html2pdf()
+          .from(card)
+          .set({
+            margin:    0.5,
+            filename:  'estimate.pdf',
+            jsPDF:     { unit:'in', format:'letter', orientation:'portrait' }
+          })
+          .save()
+          .finally(() => card.classList.remove('hide-ui'));
+      };
     };
   </script>
 </body>
