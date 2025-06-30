@@ -12,57 +12,88 @@
       --dark:    #34495e;
     }
     body {
-      margin:0; padding:2rem;
+      margin: 0;
+      padding: 2rem;
       font-family: Arial, sans-serif;
       background: var(--light);
     }
     .invoice-container {
       position: relative;
-      max-width: 800px; margin: auto;
-      background: #fff; border-radius: 8px;
+      max-width: 800px;
+      margin: auto;
+      background: #fff;
+      border-radius: 8px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      padding: 2rem; overflow: hidden;
+      padding: 2rem;
+      overflow: hidden;
     }
-    /* CSS tribal watermark */
+    /* your splashedpaint.jpg as a subtle watermark */
     .invoice-container::before {
-      content:""; position:absolute; inset:0;
-      background: repeating-linear-gradient(
-        45deg,
-        rgba(255,153,204,0.1) 0 20px,
-        rgba(153,204,255,0.1) 20px 40px,
-        rgba(153,255,153,0.1) 40px 60px,
-        rgba(255,255,153,0.1) 60px 80px
-      );
-      background-size: cover; z-index: 0;
+      content: "";
+      position: absolute;
+      top: 0; right: 0; bottom: 0; left: 0;
+      background: url("splashedpaint.jpg") center/cover no-repeat;
+      opacity: 0.08;
+      z-index: 0;
     }
-    /* hide UI during PDF export */
+    /* keep all content above the watermark */
+    .invoice-container > * {
+      position: relative;
+      z-index: 1;
+    }
+    /* hide buttons during PDF export */
     .invoice-container.hide-ui .actions,
     .invoice-container.hide-ui .add-btn {
       display: none !important;
     }
-    /* all content above watermark */
-    .invoice-container > * { position: relative; z-index: 1; }
 
     /* header */
-    .invoice-header { display: flex; justify-content: space-between; align-items: center; }
-    .company-left { display: flex; align-items: center; }
-    .logo { height: 60px; margin-right: 1rem; }
-    .company-name { font-size: 1.8rem; color: var(--primary); margin:0; }
+    .invoice-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .company-left {
+      display: flex;
+      align-items: center;
+    }
+    .logo {
+      height: 120px;    /* larger for better resolution */
+      margin-right: 1rem;
+    }
+    .company-name {
+      font-size: 1.8rem;
+      color: var(--primary);
+      margin: 0;
+    }
 
     /* invoice meta */
     .invoice-meta {
-      background: var(--mid); color: #fff;
-      padding: 1rem; border-radius: 4px; width: 200px;
+      background: var(--mid);
+      color: #fff;
+      padding: 1rem;
+      border-radius: 4px;
+      width: 200px;
       font-size: 0.9rem;
     }
-    .meta-row { display: flex; justify-content: space-between; margin-bottom: 0.5rem; }
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
     .meta-row input {
-      width: 80px; border: none; border-radius: 2px;
+      width: 80px;
+      border: none;
+      border-radius: 2px;
       padding: 0.2rem;
     }
     .meta-total {
-      background: var(--dark); padding: 0.6rem; border-radius: 3px;
-      display: flex; justify-content: space-between; font-weight: bold;
+      background: var(--dark);
+      padding: 0.6rem;
+      border-radius: 3px;
+      display: flex;
+      justify-content: space-between;
+      font-weight: bold;
     }
 
     /* recipient */
@@ -72,9 +103,11 @@
       font-size: 0.9rem;
     }
     .recipient input {
-      width: 100%; border: none;
+      width: 100%;
+      border: none;
       border-bottom: 1px solid var(--mid);
-      margin-bottom: 0.5rem; padding: 0.3rem 0;
+      margin-bottom: 0.5rem;
+      padding: 0.3rem 0;
     }
 
     /* items table */
@@ -85,7 +118,9 @@
       border-bottom: 1px solid var(--mid);
     }
     .items-table {
-      width: 100%; border-collapse: collapse; margin-top: 1rem;
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
     }
     .items-table th {
       background: var(--light);
@@ -97,25 +132,37 @@
       border-bottom: 1px solid #eee;
       padding: 0.6rem;
     }
-    .items-table input, .items-table textarea {
-      width: 100%; border: 1px solid var(--mid);
-      border-radius: 3px; padding: 0.3rem;
+    .items-table input,
+    .items-table textarea {
+      width: 100%;
+      border: 1px solid var(--mid);
+      border-radius: 3px;
+      padding: 0.3rem;
       box-sizing: border-box;
     }
-    .items-table textarea { resize: vertical; }
+    .items-table textarea {
+      resize: vertical;
+    }
 
     /* buttons */
-    .add-btn, .actions button {
-      background: var(--accent); color: #fff; border: none;
+    .add-btn,
+    .actions button {
+      background: var(--accent);
+      color: #fff;
+      border: none;
       border-radius: 4px;
-      padding: 0.4rem 0.8rem; cursor: pointer;
-      font-size: 0.9rem; margin-top: 0.5rem;
+      padding: 0.4rem 0.8rem;
+      cursor: pointer;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
     }
-    .add-btn:hover, .actions button:hover {
+    .add-btn:hover,
+    .actions button:hover {
       background: var(--dark);
     }
     .actions {
-      margin-top: 2rem; text-align: right;
+      margin-top: 2rem;
+      text-align: right;
     }
   </style>
 </head>
@@ -130,10 +177,22 @@
         <h1 class="company-name">Elvis Of Colours</h1>
       </div>
       <div class="invoice-meta">
-        <div class="meta-row"><label>Invoice #</label><input id="invoiceNumber" value="0001"></div>
-        <div class="meta-row"><label>Issued</label><input id="issueDate" type="date"></div>
-        <div class="meta-row"><label>Due</label><input id="dueDate" type="date"></div>
-        <div class="meta-total"><span>Total</span><span id="invoiceTotal">$0.00</span></div>
+        <div class="meta-row">
+          <label>Invoice #</label>
+          <input id="invoiceNumber" value="0001">
+        </div>
+        <div class="meta-row">
+          <label>Issued</label>
+          <input id="issueDate" type="date">
+        </div>
+        <div class="meta-row">
+          <label>Due</label>
+          <input id="dueDate" type="date">
+        </div>
+        <div class="meta-total">
+          <span>Total</span>
+          <span id="invoiceTotal">$0.00</span>
+        </div>
       </div>
     </header>
 
@@ -147,7 +206,13 @@
     <h2 class="section-title">For Services Rendered</h2>
     <table class="items-table" id="itemsTable">
       <thead>
-        <tr><th>Service</th><th>Description</th><th>Qty.</th><th>Unit Price</th><th>Line Total</th></tr>
+        <tr>
+          <th>Service</th>
+          <th>Description</th>
+          <th>Qty.</th>
+          <th>Unit Price</th>
+          <th>Line Total</th>
+        </tr>
       </thead>
       <tbody></tbody>
     </table>
@@ -196,6 +261,7 @@
           .set({
             margin:    0.5,
             filename:  'estimate.pdf',
+            html2canvas: { scale: 2 },
             jsPDF:     { unit:'in', format:'letter', orientation:'portrait' }
           })
           .save()
