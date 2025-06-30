@@ -4,143 +4,141 @@
   <meta charset="UTF-8" />
   <title>Elvis of Colours Estimator</title>
   <style>
-    :root {
-      --primary: #2c3e50;
-      --accent:  #2980b9;
-      --light:   #ecf0f1;
-      --mid:     #bdc3c7;
-      --dark:    #34495e;
-    }
     body {
-      margin: 0; padding: 2rem;
-      background: var(--light);
       font-family: 'Helvetica Neue', Arial, sans-serif;
+      background: #ecf0f1;
+      padding: 2rem;
+      margin: 0;
     }
-    .invoice-container {
-      position: relative;
+    #invoice {
       max-width: 800px;
       margin: auto;
       background: #fff;
       border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
       padding: 2rem;
-      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
-    /* tribal watermark via CSS gradient */
-    .invoice-container::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: repeating-linear-gradient(
-        45deg,
-        rgba(255,153,204,0.1) 0 20px,
-        rgba(153,204,255,0.1) 20px 40px,
-        rgba(153,255,153,0.1) 40px 60px,
-        rgba(255,255,153,0.1) 60px 80px
-      ) center/cover no-repeat;
-      z-index: 0;
+    #invoice header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-    .invoice-container > * {
-      position: relative; z-index: 1;
+    #invoice .company {
+      display: flex;
+      align-items: center;
     }
-
-    .invoice-header {
-      display: flex; justify-content: space-between; align-items: flex-start;
+    #invoice .company img {
+      height: 60px;
+      margin-right: 1rem;
     }
-    .company-left { display: flex; align-items: center; }
-    .logo { height: 60px; margin-right: 1rem; }
-    .company-name { margin: 0; color: var(--primary); font-size: 1.8rem; }
-
-    .invoice-meta {
-      background: var(--mid);
-      border-radius: 4px;
-      padding: 1rem;
+    #invoice .company h1 {
+      margin: 0;
+      color: #2c3e50;
+    }
+    #controls {
+      text-align: center;
+      margin-top: 2rem;
+    }
+    #controls button {
+      background: #2980b9;
       color: #fff;
-      width: 200px;
-      font-size: 0.9rem;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      margin: 0 0.5rem;
+      font-size: 1rem;
+      border-radius: 4px;
+      cursor: pointer;
     }
-    .invoice-meta .meta-row {
-      display: flex; justify-content: space-between; margin-bottom: 0.5rem;
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1.5rem;
     }
-    .invoice-meta label { font-weight: bold; }
-    .invoice-meta input {
-      width: 80px; border: none; border-radius: 2px; padding: 0.2rem;
+    table th, table td {
+      border: 1px solid #ddd;
+      padding: 0.6rem;
+      text-align: left;
     }
-    .invoice-meta .meta-total {
-      background: var(--dark);
-      padding: 0.6rem; border-radius: 3px;
-      display: flex; justify-content: space-between; font-weight: bold;
-      margin-top: 0.5rem;
+    table th {
+      background: #ecf0f1;
     }
-
-    .recipient {
-      margin-top: 2rem; text-transform: uppercase; font-size: 0.9rem;
-    }
-    .recipient strong { display: block; margin-bottom: 0.3rem; }
-    .recipient input {
-      width: 100%; border: none; border-bottom: 1px solid var(--mid);
-      margin-bottom: 0.5rem; padding: 0.3rem 0;
-    }
-
-    .section-title {
-      margin-top: 2rem; border-bottom: 1px solid var(--mid);
-      padding-bottom: 0.3rem; color: var(--primary); font-size: 1.2rem;
-    }
-
-    .items-table {
-      width: 100%; border-collapse: collapse; margin-top: 1rem;
-    }
-    .items-table th {
-      background: var(--light); color: var(--primary);
-      text-align: left; padding: 0.6rem; font-weight: normal;
-    }
-    .items-table td {
-      border-bottom: 1px solid #eee; padding: 0.6rem;
-    }
-    .items-table input,
-    .items-table textarea {
-      width: 100%; border: 1px solid var(--mid);
-      border-radius: 3px; padding: 0.3rem; box-sizing: border-box;
-    }
-    .items-table textarea { resize: vertical; }
-
-    .add-btn,
-    .actions button {
-      background: var(--accent); color: #fff; border: none;
-      border-radius: 4px; padding: 0.4rem 0.8rem;
-      margin-top: 0.5rem; cursor: pointer; font-size: 0.9rem;
-    }
-    .add-btn:hover,
-    .actions button:hover { background: var(--dark); }
-    .actions { margin-top: 2rem; text-align: right; }
-
-    /* PRINT STYLES: only show the invoice-card */
-    @media print {
-      body * { visibility: hidden; }
-      .invoice-container, .invoice-container * { visibility: visible; }
-      .invoice-container { position: absolute; top: 0; left: 0; width: 100%; }
+    input, textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0.4rem;
+      border: 1px solid #ccc;
+      border-radius: 3px;
     }
   </style>
 </head>
 <body>
-  <div class="invoice-container" id="invoiceCard">
-    <header class="invoice-header">
-      <div class="company-left">
-        <img src="https://i.imgur.com/nIdc6aB.jpeg" class="logo" alt="Logo">
-        <h1 class="company-name">Elvis Of Colours</h1>
+  <div id="invoice">
+    <header>
+      <div class="company">
+        <img src="https://i.imgur.com/nIdc6aB.jpeg" alt="Elvis Of Colours Logo">
+        <h1>Elvis Of Colours</h1>
       </div>
-      <div class="invoice-meta">
-        <div class="meta-row">
-          <label>Invoice #</label>
-          <input type="text" id="invoiceNumber" value="0001">
-        </div>
-        <div class="meta-row">
-          <label>Issued</label>
-          <input type="date" id="issueDate">
-        </div>
-        <div class="meta-row">
-          <label>Due</label>
-          <input type="date" id="dueDate">
-        </div>
-        <div class="meta-total">
-          <spa
+      <div>
+        <div><label>Invoice #</label> <input id="invNum" value="0001"></div>
+        <div><label>Issued</label> <input id="invDate" type="date"></div>
+        <div><label>Due</label>    <input id="dueDate" type="date"></div>
+      </div>
+    </header>
+
+    <section style="margin-top:2rem;">
+      <strong>Recipient</strong><br>
+      <input id="clientName" placeholder="Client Name"><br>
+      <input id="clientAddress" placeholder="Address"><br>
+      <input id="clientPhone" placeholder="Phone">
+    </section>
+
+    <h2 style="margin-top:1.5rem;">Services</h2>
+    <table id="itemsTable">
+      <thead>
+        <tr>
+          <th>Product/Service</th>
+          <th>Description</th>
+          <th style="width:60px;">Qty.</th>
+          <th style="width:80px;">Unit Price</th>
+          <th style="width:80px;">Line Total</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <button id="addRow" style="margin-top:0.5rem;">+ Add Item</button>
+
+    <div style="text-align:right; margin-top:1rem;">
+      <strong>Total: </strong><span id="totalAmt">$0.00</span>
+    </div>
+  </div>
+
+  <div id="controls">
+    <button id="compute">Compute Total</button>
+    <button id="download">Download PDF</button>
+  </div>
+
+  <!-- jsPDF + AutoTable -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+  <script>
+    const { jsPDF } = window.jspdf;
+
+    // add new row
+    document.getElementById('addRow').onclick = () => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><input placeholder="Service"></td>
+        <td><textarea rows="2" placeholder="Description"></textarea></td>
+        <td><input type="number" value="0"></td>
+        <td><input type="number" value="0" step="0.01"></td>
+        <td class="line">$0.00</td>
+      `;
+      document.querySelector('#itemsTable tbody').appendChild(tr);
+    };
+
+    // compute totals
+    document.getElementById('compute').onclick = () => {
+      let sum = 0;
+      document.querySelectorAll('#itemsTable tbody tr').forEach(tr => {
+        const qty   = parseFloat(tr.cells[2].querySelector('input').value) || 0;
+        const price = parseFloat(tr.cells[3].querySe
