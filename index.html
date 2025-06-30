@@ -66,21 +66,25 @@
       margin-bottom:0.5rem; padding:0.3rem 0;
     }
 
+    /* remove box styling from table */
+    table, th, td {
+      border: none !important;
+      background: transparent !important;
+    }
     /* editable table */
-    table { width:100%; border-collapse:collapse; margin-top:2rem; }
+    table { width:100%; margin-top:2rem; }
     th {
-      background:var(--light); padding:0.75rem; text-align:left;
-      font-weight:normal;
+      padding:0.75rem 0; text-align:left; font-weight:bold;
     }
     td {
-      padding:0.75rem; vertical-align:top; line-height:1.4;
-      border-bottom:1px solid #eee;
+      padding:0.5rem 0; vertical-align:top; line-height:1.4;
     }
     td.editable {
       cursor:text;
     }
     td.editable:empty:before {
-      content:attr(data-placeholder); color:#aaa;
+      content: attr(data-placeholder);
+      color: #aaa;
     }
 
     /* controls */
@@ -109,7 +113,7 @@
       <div class="invoice-meta">
         <div class="meta-row"><label>Invoice #</label><input id="invNum" value="0001"></div>
         <div class="meta-row"><label>Issued</label><input id="invDate" type="date"></div>
-        <div class="meta-row"><label>Due</label><input id="dueDate" type="date"></div>
+        <div class="meta-row"><label>Due</label><input id="invDateDue" type="date"></div>
         <div class="meta-total"><span>Total</span><span id="invTotal">$0.00</span></div>
       </div>
     </header>
@@ -127,8 +131,8 @@
           <th style="width:15%;">Service</th>
           <th style="width:45%;">Description</th>
           <th style="width:10%;">Qty.</th>
-          <th style="width:15%;">Unit Price</th>
-          <th style="width:15%;">Line Total</th>
+          <th style="width:15%;">Unit Price</th>
+          <th style="width:15%;">Line Total</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -147,7 +151,6 @@
       const tbody = document.querySelector('#itemsTable tbody');
       const invTotal = document.getElementById('invTotal');
 
-      // helper: make an editable cell
       function makeCell(placeholder){
         const td = document.createElement('td');
         td.className = 'editable';
@@ -156,7 +159,6 @@
         return td;
       }
 
-      // add a new row
       document.getElementById('addRow').onclick = () => {
         const tr = document.createElement('tr');
         tr.appendChild(makeCell('Service'));
@@ -168,10 +170,9 @@
         tr.appendChild(tot);
         tbody.appendChild(tr);
       };
-      // seed one row
+      // seed first row
       document.getElementById('addRow').click();
 
-      // compute line totals & grand total
       document.getElementById('computeBtn').onclick = () => {
         let sum = 0;
         tbody.querySelectorAll('tr').forEach(tr => {
@@ -184,7 +185,6 @@
         invTotal.textContent = '$' + sum.toFixed(2);
       };
 
-      // load image into a canvas and return dataURI
       function getImageDataURL(src, alpha=1){
         return new Promise((res, rej) => {
           const img = new Image();
@@ -193,20 +193,17 @@
             const c = document.createElement('canvas');
             c.width = img.width; c.height = img.height;
             const ctx = c.getContext('2d');
-            if(alpha<1){ ctx.globalAlpha = alpha; }
-            ctx.drawImage(img, 0, 0, c.width, c.height);
+            if(alpha<1) ctx.globalAlpha = alpha;
+            ctx.drawImage(img, 0, 0);
             res(c.toDataURL('image/png'));
           };
           img.onerror = rej;
         });
       }
 
-      // build and download PDF
       document.getElementById('downloadBtn').onclick = async () => {
-        // recompute to be safe
         document.getElementById('computeBtn').click();
 
-        // gather table data
         const body = [];
         tbody.querySelectorAll('tr').forEach(tr => {
           body.push([
@@ -218,7 +215,6 @@
           ]);
         });
 
-        // set up PDF
         const doc = new jsPDF({ unit:'pt', format:'letter' });
         const pageW = doc.internal.pageSize.getWidth();
         const pageH = doc.internal.pageSize.getHeight();
@@ -228,48 +224,40 @@
         doc.addImage(wm, 'PNG', 0, 0, pageW, pageH);
 
         // logo
-        const logoData = await getImageDataURL('elvisofcolour.jpeg');
-        const logoImg  = new Image();
-        logoImg.src    = logoData;
-        await new Promise(r=>logoImg.onload=r);
-        const logoW    = 100;
-        const logoH    = logoImg.height / logoImg.width * logoW;
-        doc.addImage(logoData, 'PNG', 40, 40, logoW, logoH);
+        const logo = await getImageDataURL('elvisofcolour.jpeg');
+        doc.addImage(logo, 'PNG', 40, 40, 100, 100* (new Image().height / new Image().width));
 
         // header text
         doc.setFontSize(12)
            .text(`Invoice #: ${document.getElementById('invNum').value}`, 160, 60)
            .text(`Issued: ${document.getElementById('invDate').value}`, 160, 80)
-           .text(`Due: ${document.getElementById('dueDate').value}`, 160, 100);
+           .text(`Due: ${document.getElementById('invDateDue').value}`, 160, 100);
 
         // recipient
         let y = 140;
         doc.setFontSize(14).text('Recipient:', 40, y);
         y += 18;
-        [ 'clientName', 'clientAddress', 'clientPhone' ].forEach(id => {
+        ['clientName','clientAddress','clientPhone'].forEach(id => {
           doc.setFontSize(12).text(document.getElementById(id).value, 40, y);
           y += 16;
         });
 
-        // items table
+        // table
         doc.autoTable({
           startY: y + 10,
-          margin: { left: 40, right: 40 },
-          head: [['Service','Description','Qty','Unit Price','Line Total']],
+          margin: { left:40, right:40 },
+          head: [['Service','Description','Qty','Unit','Total']],
           body: body,
-          styles: { fontSize: 10, cellPadding: 4 },
-          headStyles: { fillColor: [236,240,241] },
-          columnStyles: {
-            1: { cellWidth: 200 } // give description extra width
-          }
+          theme: 'plain',
+          styles: { fontSize:10, cellPadding:4 },
+          columnStyles: { 1: { cellWidth:200 } }
         });
 
-        // grand total
+        // total
         const finalY = doc.lastAutoTable.finalY + 20;
         doc.setFontSize(14)
-           .text(`Total: ${invTotal.textContent}`, pageW - 40, finalY, { align: 'right' });
+           .text(`Total: ${invTotal.textContent}`, pageW - 40, finalY, { align:'right' });
 
-        // save
         doc.save('estimate.pdf');
       };
     })();
