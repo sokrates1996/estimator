@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Elvis of Colours Estimator</title>
   <style>
     :root {
@@ -12,52 +12,48 @@
       --dark:    #34495e;
     }
     body {
-      margin: 0;
-      padding: 2rem;
+      margin: 0; padding: 2rem;
       background: var(--light);
       font-family: 'Helvetica Neue', Arial, sans-serif;
     }
     .invoice-container {
       position: relative;
-      max-width: 800px;
-      margin: auto;
-      background: #fff;
-      border-radius: 8px;
+      max-width: 800px; margin: auto;
+      background: #fff; border-radius: 8px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      padding: 2rem;
-      overflow: hidden;
+      padding: 2rem; overflow: hidden;
     }
+    /* watermark image placeholder */
     .watermark-img {
-      position: absolute; inset: 0;
-      width: 100%; height: 100%;
+      position: absolute;
+      inset: 0;
       object-fit: cover;
+      width: 100%; height: 100%;
       opacity: 0.05;
       z-index: 0;
     }
+    /* bring everything else above it */
     .invoice-container > *:not(.watermark-img) {
-      position: relative;
-      z-index: 1;
+      position: relative; z-index: 1;
     }
     /* hide UI during export */
     .hide-ui .add-btn,
     .hide-ui .actions {
       display: none !important;
     }
-    .invoice-header { display: flex; justify-content: space-between; align-items: flex-start; }
+    /* rest of your CSS… */
+    .invoice-header {
+      display: flex; justify-content: space-between; align-items: flex-start;
+    }
     .company-left { display: flex; align-items: center; }
     .logo { height: 60px; margin-right: 1rem; }
     .company-name { margin: 0; color: var(--primary); font-size: 1.8rem; }
     .invoice-meta {
-      background: var(--mid);
-      border-radius: 4px;
-      padding: 1rem;
-      color: #fff;
-      width: 200px;
-      font-size: 0.9rem;
+      background: var(--mid); border-radius: 4px; padding: 1rem;
+      color: #fff; width: 200px; font-size: 0.9rem;
     }
     .invoice-meta .meta-row {
-      display: flex; justify-content: space-between;
-      margin-bottom: 0.5rem;
+      display: flex; justify-content: space-between; margin-bottom: 0.5rem;
     }
     .invoice-meta label { font-weight: bold; }
     .invoice-meta input {
@@ -65,39 +61,28 @@
     }
     .invoice-meta .meta-total {
       background: var(--dark);
-      padding: 0.6rem;
-      border-radius: 3px;
+      padding: 0.6rem; border-radius: 3px;
       display: flex; justify-content: space-between;
-      font-weight: bold;
-      margin-top: 0.5rem;
+      font-weight: bold; margin-top: 0.5rem;
     }
     .recipient {
-      margin-top: 2rem;
-      text-transform: uppercase;
-      font-size: 0.9rem;
+      margin-top: 2rem; text-transform: uppercase; font-size: 0.9rem;
     }
     .recipient strong { display: block; margin-bottom: 0.3rem; }
     .recipient input {
-      width: 100%; border: none;
-      border-bottom: 1px solid var(--mid);
+      width: 100%; border: none; border-bottom: 1px solid var(--mid);
       margin-bottom: 0.5rem; padding: 0.3rem 0;
     }
     .section-title {
-      margin-top: 2rem;
-      border-bottom: 1px solid var(--mid);
-      padding-bottom: 0.3rem;
-      color: var(--primary);
-      font-size: 1.2rem;
+      margin-top: 2rem; border-bottom: 1px solid var(--mid);
+      padding-bottom: 0.3rem; color: var(--primary); font-size: 1.2rem;
     }
     .items-table {
       width: 100%; border-collapse: collapse; margin-top: 1rem;
     }
     .items-table th {
-      background: var(--light);
-      color: var(--primary);
-      text-align: left;
-      padding: 0.6rem;
-      font-weight: normal;
+      background: var(--light); color: var(--primary);
+      text-align: left; padding: 0.6rem; font-weight: normal;
     }
     .items-table td {
       border-bottom: 1px solid #eee; padding: 0.6rem;
@@ -110,35 +95,32 @@
     .items-table textarea { resize: vertical; }
     .add-btn,
     .actions button {
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      padding: 0.4rem 0.8rem;
-      margin-top: 0.5rem;
-      cursor: pointer;
-      font-size: 0.9rem;
+      background: var(--accent); color: #fff; border: none;
+      border-radius: 4px; padding: 0.4rem 0.8rem;
+      margin-top: 0.5rem; cursor: pointer; font-size: 0.9rem;
     }
     .add-btn:hover,
-    .actions button:hover {
-      background: var(--dark);
-    }
+    .actions button:hover { background: var(--dark); }
     .actions { margin-top: 2rem; text-align: right; }
   </style>
 </head>
 <body>
-  <!-- html2canvas & jsPDF -->
+  <!-- load html2canvas & jsPDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <div id="invoiceCard" class="invoice-container">
-    <!-- tribal watermark -->
-    <img src="YOUR_TRIBAL_PATTERN_URL" class="watermark-img" alt="Watermark">
+    <!-- will be filled by JS -->
+    <img class="watermark-img" alt="Watermark" />
 
     <header class="invoice-header">
       <div class="company-left">
-        <!-- crossorigin ensures html2canvas can pull it in -->
-        <img src="https://i.imgur.com/nIdc6aB.jpeg" crossorigin="anonymous" class="logo" alt="Elvis Of Colours Logo">
+        <img
+          src="https://i.imgur.com/nIdc6aB.jpeg"
+          crossorigin="anonymous"
+          class="logo"
+          alt="Elvis Of Colours Logo"
+        >
         <h1 class="company-name">Elvis Of Colours</h1>
       </div>
       <div class="invoice-meta">
@@ -155,8 +137,7 @@
           <input type="date" id="dueDate">
         </div>
         <div class="meta-total">
-          <span>Total</span>
-          <span id="invoiceTotal">$0.00</span>
+          <span>Total</span><span id="invoiceTotal">$0.00</span>
         </div>
       </div>
     </header>
@@ -193,6 +174,37 @@
     window.onload = () => {
       const { jsPDF } = window.jspdf;
 
+      // 1) Generate the tribal pattern on a hidden canvas,
+      //    then set it as the watermark IMG src.
+      const wmImg = document.querySelector('.watermark-img');
+      const W = 400, H = 400;
+      const c_tl = [1.0,0.6,0.7], c_tr = [0.6,0.8,1.0],
+            c_br = [0.6,1.0,0.6], c_bl = [1.0,1.0,0.6];
+      const canvas = document.createElement('canvas');
+      canvas.width = W; canvas.height = H;
+      const ctx = canvas.getContext('2d');
+      const imgData = ctx.createImageData(W,H);
+      for(let y=0;y<H;y++){
+        for(let x=0;x<W;x++){
+          const X = x/(W-1), Y = y/(H-1);
+          const wt_tl = (1-X)*(1-Y),
+                wt_tr = X*(1-Y),
+                wt_br = X*Y,
+                wt_bl = (1-X)*Y;
+          const r = (wt_tl*c_tl[0] + wt_tr*c_tr[0] + wt_br*c_br[0] + wt_bl*c_bl[0]) *255;
+          const g = (wt_tl*c_tl[1] + wt_tr*c_tr[1] + wt_br*c_br[1] + wt_bl*c_bl[1]) *255;
+          const b = (wt_tl*c_tl[2] + wt_tr*c_tr[2] + wt_br*c_br[2] + wt_bl*c_bl[2]) *255;
+          const idx = (y*W + x)*4;
+          imgData.data[idx]   = r;
+          imgData.data[idx+1] = g;
+          imgData.data[idx+2] = b;
+          imgData.data[idx+3] = 255;
+        }
+      }
+      ctx.putImageData(imgData, 0, 0);
+      wmImg.src = canvas.toDataURL('image/png');
+
+      // 2) Add item rows
       document.getElementById('addItem').onclick = () => {
         const tbody = document.querySelector('#itemsTable tbody');
         const tr = document.createElement('tr');
@@ -205,33 +217,33 @@
         tbody.appendChild(tr);
       };
 
+      // 3) Compute totals
       document.getElementById('computeBtn').onclick = () => {
-        let sum = 0;
+        let sum=0;
         document.querySelectorAll('#itemsTable tbody tr').forEach(tr => {
-          const qty   = parseFloat(tr.children[2].querySelector('input').value) || 0;
-          const price = parseFloat(tr.children[3].querySelector('input').value) || 0;
-          const line  = qty * price;
-          tr.querySelector('.line-total').textContent = '$' + line.toFixed(2);
+          const qty = parseFloat(tr.children[2].querySelector('input').value)||0;
+          const price = parseFloat(tr.children[3].querySelector('input').value)||0;
+          const line = qty*price;
+          tr.querySelector('.line-total').textContent = '$'+line.toFixed(2);
           sum += line;
         });
-        document.getElementById('invoiceTotal').textContent = '$' + sum.toFixed(2);
+        document.getElementById('invoiceTotal').textContent = '$'+sum.toFixed(2);
       };
 
+      // 4) Download PDF
       document.getElementById('downloadBtn').onclick = async () => {
         const card = document.getElementById('invoiceCard');
         card.classList.add('hide-ui');
-        // give CSS a moment
-        await new Promise(r => setTimeout(r, 100));
-        // capture
-        html2canvas(card, { useCORS: true, scale: 2 }).then(canvas => {
-          const imgData = canvas.toDataURL('image/png');
-          const pdf = new jsPDF({ unit: 'pt', format: 'letter' });
-          const pageW = pdf.internal.pageSize.getWidth();
-          const pageH = pdf.internal.pageSize.getHeight();
-          const ratio = Math.min(pageW / canvas.width, pageH / canvas.height);
-          const imgW = canvas.width * ratio;
-          const imgH = canvas.height * ratio;
-          pdf.addImage(imgData, 'PNG', (pageW - imgW)/2, 40, imgW, imgH);
+        await new Promise(r=>setTimeout(r,100));
+        html2canvas(card, { scale:2 }).then(canvas => {
+          const img = canvas.toDataURL('image/png');
+          const pdf = new jsPDF({ unit:'pt', format:'letter' });
+          const w = pdf.internal.pageSize.getWidth();
+          const h = pdf.internal.pageSize.getHeight();
+          const ratio = Math.min(w/canvas.width, h/canvas.height);
+          const imgW = canvas.width*ratio;
+          const imgH = canvas.height*ratio;
+          pdf.addImage(img,'PNG',(w-imgW)/2,40,imgW,imgH);
           pdf.save('estimate.pdf');
           card.classList.remove('hide-ui');
         });
