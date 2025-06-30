@@ -12,6 +12,8 @@
       --dark:    #34495e;
     }
     body { margin:0; padding:2rem; font-family:Arial,sans-serif; background:var(--light); }
+
+    /* Toolbar & Buttons */
     .toolbar { text-align:right; margin-bottom:1rem; }
     .toolbar button,
     .add-row,
@@ -23,6 +25,8 @@
     .toolbar button:hover,
     .add-row:hover,
     .actions button:hover { background:var(--dark); }
+
+    /* Invoice Container & Watermark */
     .invoice-container {
       position:relative; max-width:800px; margin:auto;
       background:#fff; border-radius:8px;
@@ -41,11 +45,11 @@
     .invoice-container.hide-ui .actions,
     .invoice-container.hide-ui .add-row { display:none!important; }
 
+    /* Header: Logo, Name, Company Info */
     .invoice-header { display:flex; justify-content:space-between; align-items:center; }
     .company-left { display:flex; align-items:center; }
     .logo { height:120px; margin-right:1rem; }
     .company-name { font-size:1.8rem; color:var(--primary); margin:0; }
-
     .company-info { margin-top:0.4rem; font-size:0.9rem; }
     .company-info input {
       display:block; width:250px; border:none;
@@ -53,6 +57,7 @@
       margin:0.2rem 0; padding:0.2rem 0;
     }
 
+    /* Invoice Meta & Recipient */
     .invoice-meta {
       background:var(--mid); color:#fff;
       padding:1rem; border-radius:4px; width:200px; font-size:0.9rem;
@@ -60,9 +65,8 @@
     .meta-row { display:flex; justify-content:space-between; margin-bottom:0.5rem; }
     .meta-row input { width:60px; border:none; border-radius:2px; padding:0.2rem; }
     .meta-total {
-      background:var(--dark); padding:0.6rem;
-      border-radius:3px; display:flex; justify-content:space-between;
-      font-weight:bold;
+      background:var(--dark); padding:0.6rem; border-radius:3px;
+      display:flex; justify-content:space-between; font-weight:bold;
     }
     .recipient { margin-top:2rem; text-transform:uppercase; font-size:0.9rem; }
     .recipient input {
@@ -70,23 +74,34 @@
       margin-bottom:0.5rem; padding:0.3rem 0;
     }
 
-    table { width:100%; margin-top:2rem; border-collapse:collapse; }
+    /* Fixed‑layout Table */
+    table {
+      width:100%; margin-top:2rem;
+      border-collapse:collapse;
+      table-layout:fixed; /* fixed column widths */
+    }
+    colgroup col:nth-child(1) { width: 60px; }
+    colgroup col:nth-child(2) { width:300px; }
+    colgroup col:nth-child(3) { width:30px; }
+    colgroup col:nth-child(4) { width:50px; }
+    colgroup col:nth-child(5) { width:50px; }
     th, td {
       border:none!important; background:transparent!important;
-      padding:0.4rem 0; line-height:1.4;
+      padding:0.4rem 0; line-height:1.4; overflow-wrap:break-word;
     }
     th { font-weight:bold; }
     td.editable { cursor:text; }
     td.editable:empty:before { content:attr(data-placeholder); color:#aaa; }
 
-    .actions { margin-top:2rem; text-align:right; }
-
+    /* Floating Text Boxes */
     .textbox {
       position:absolute; min-width:120px; min-height:30px;
       padding:4px 8px; background:rgba(255,255,255,0.8);
       border:1px dashed #aaa; cursor:move; overflow:hidden;
     }
     .textbox:focus { outline:2px solid var(--accent); }
+
+    .actions { margin-top:2rem; text-align:right; }
   </style>
 </head>
 <body>
@@ -122,13 +137,20 @@
     </section>
 
     <table id="itemsTable">
+      <colgroup>
+        <col>
+        <col>
+        <col>
+        <col>
+        <col>
+      </colgroup>
       <thead>
         <tr>
-          <th style="width:60px;">Service</th>
-          <th style="width:300px;">Description</th>
-          <th style="width:30px;">Qty.</th>
-          <th style="width:50px;">Unit Price</th>
-          <th style="width:50px;">Line Total</th>
+          <th>Service</th>
+          <th>Description</th>
+          <th>Qty.</th>
+          <th>Unit Price</th>
+          <th>Line Total</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -150,6 +172,7 @@
     const tbody       = document.querySelector('#itemsTable tbody');
     const invTotal    = document.getElementById('invTotal');
 
+    // Make editable table cell
     function makeCell(placeholder){
       const td = document.createElement('td');
       td.className       = 'editable';
@@ -157,6 +180,8 @@
       td.setAttribute('data-placeholder', placeholder);
       return td;
     }
+
+    // Add new data row
     document.getElementById('addRow').onclick = () => {
       const tr = document.createElement('tr');
       tr.appendChild(makeCell('Service'));
@@ -170,19 +195,20 @@
     };
     document.getElementById('addRow').click();
 
+    // Compute totals
     document.getElementById('computeBtn').onclick = () => {
       let sum = 0;
-      tbody.querySelectorAll('tr').forEach(tr=>{
-        const qty   = parseFloat(tr.cells[2].textContent)||0;
-        const price = parseFloat(tr.cells[3].textContent)||0;
-        const line  = qty*price;
-        tr.cells[4].textContent = '$'+line.toFixed(2);
+      tbody.querySelectorAll('tr').forEach(tr => {
+        const qty   = parseFloat(tr.cells[2].textContent) || 0;
+        const price = parseFloat(tr.cells[3].textContent) || 0;
+        const line  = qty * price;
+        tr.cells[4].textContent = '$' + line.toFixed(2);
         sum += line;
       });
-      invTotal.textContent = '$'+sum.toFixed(2);
+      invTotal.textContent = '$' + sum.toFixed(2);
     };
 
-    // floating text boxes
+    // Add floating text box
     document.getElementById('addTextBox').onclick = () => {
       const box = document.createElement('div');
       box.className       = 'textbox';
@@ -194,43 +220,50 @@
       makeDraggable(box);
       box.focus();
     };
+
+    // Make element draggable
     function makeDraggable(el){
       let sX,sY,oX,oY;
-      el.onmousedown = e=>{
+      el.onmousedown = e => {
         if(e.button!==0) return;
-        sX=e.clientX; sY=e.clientY;
-        const r=el.getBoundingClientRect();
-        oX=r.left; oY=r.top;
-        document.onmousemove=drag;
-        document.onmouseup=()=>document.onmousemove=document.onmouseup=null;
+        sX = e.clientX; sY = e.clientY;
+        const r = el.getBoundingClientRect();
+        oX = r.left; oY = r.top;
+        document.onmousemove = drag;
+        document.onmouseup = () => document.onmousemove = document.onmouseup = null;
       };
       function drag(e){
-        const dx=e.clientX-sX, dy=e.clientY-sY;
-        const ir=invoiceCard.getBoundingClientRect();
-        el.style.left = (oX+dx-ir.left)+'px';
-        el.style.top  = (oY+dy-ir.top )+'px';
+        const dx = e.clientX - sX, dy = e.clientY - sY;
+        const ir = invoiceCard.getBoundingClientRect();
+        el.style.left = (oX + dx - ir.left) + 'px';
+        el.style.top  = (oY + dy - ir.top ) + 'px';
       }
     }
 
+    // Load image as data URL
     function loadImageDataURL(src, alpha=1){
-      return new Promise((res,rej)=>{
-        const img=new Image(); img.src=src;
-        img.onload=()=>{
-          const c=document.createElement('canvas');
-          c.width=img.width;c.height=img.height;
-          const ctx=c.getContext('2d');
-          if(alpha<1)ctx.globalAlpha=alpha;
-          ctx.drawImage(img,0,0);
+      return new Promise((res, rej) => {
+        const img = new Image();
+        img.src = src;
+        img.onload = () => {
+          const c = document.createElement('canvas');
+          c.width = img.width; c.height = img.height;
+          const ctx = c.getContext('2d');
+          if(alpha < 1) ctx.globalAlpha = alpha;
+          ctx.drawImage(img, 0, 0);
           res(c.toDataURL('image/png'));
         };
-        img.onerror=rej;
+        img.onerror = rej;
       });
     }
 
-    document.getElementById('downloadBtn').onclick = async()=>{
+    // Download PDF
+    document.getElementById('downloadBtn').onclick = async () => {
       document.getElementById('computeBtn').click();
-      const body=[];
-      tbody.querySelectorAll('tr').forEach(tr=>{
+
+      // Gather table data
+      const body = [];
+      tbody.querySelectorAll('tr').forEach(tr => {
         body.push([
           tr.cells[0].textContent.trim(),
           tr.cells[1].textContent.trim(),
@@ -240,65 +273,69 @@
         ]);
       });
 
-      const doc=new jsPDF({unit:'pt',format:'letter'});
-      const w=doc.internal.pageSize.getWidth();
-      const h=doc.internal.pageSize.getHeight();
+      // Create PDF
+      const doc = new jsPDF({ unit:'pt', format:'letter' });
+      const pageW = doc.internal.pageSize.getWidth();
+      const pageH = doc.internal.pageSize.getHeight();
 
-      // watermark
-      const wm=await loadImageDataURL('splatter.avif',0.15);
-      doc.addImage(wm,'PNG',0,0,w,h);
+      // Watermark
+      const wm = await loadImageDataURL('splatter.avif', 0.15);
+      doc.addImage(wm, 'PNG', 0, 0, pageW, pageH);
 
-      // logo
-      const logoImg=await loadImageDataURL('elvisofcolour.jpeg');
-      doc.addImage(logoImg,'PNG',40,40,100,100);
+      // Logo
+      const logo = await loadImageDataURL('elvisofcolour.jpeg');
+      doc.addImage(logo, 'PNG', 40, 40, 100, 100);
 
-      // company info
+      // Company Info under logo
       doc.setFontSize(10)
          .text(document.getElementById('companyAddress').value, 150, 60)
          .text(document.getElementById('companyPhone').value, 150, 75);
 
-      // header text
+      // Invoice meta
       doc.setFontSize(12)
-         .text(`Invoice #: ${document.getElementById('invNum').value}`,160,90)
-         .text(`Issued: ${document.getElementById('invDate').value}`,160,110)
-         .text(`Due: ${document.getElementById('dueDate').value}`,160,130);
+         .text(`Invoice #: ${document.getElementById('invNum').value}`, 160, 90)
+         .text(`Issued: ${document.getElementById('invDate').value}`, 160, 110)
+         .text(`Due: ${document.getElementById('dueDate').value}`, 160, 130);
 
-      // recipient
-      let y=160;
-      doc.setFontSize(14).text('Recipient:',40,y);
-      y+=18;
-      ['clientName','clientAddress','clientPhone']
-        .forEach(id=>{doc.setFontSize(12).text(document.getElementById(id).value,40,y); y+=16;});
+      // Recipient
+      let y = 160;
+      doc.setFontSize(14).text('Recipient:', 40, y);
+      y += 18;
+      ['clientName','clientAddress','clientPhone'].forEach(id => {
+        doc.setFontSize(12).text(document.getElementById(id).value, 40, y);
+        y += 16;
+      });
 
-      // items table
+      // Items table
       doc.autoTable({
-        startY: y+10,
-        margin:{left:40,right:40},
-        head:[['Service','Description','Qty','Unit Price','Line Total']],
+        startY: y + 10,
+        margin: { left: 40, right: 40 },
+        head: [['Service','Description','Qty','Unit Price','Line Total']],
         body,
-        theme:'plain',
-        styles:{fontSize:10,overflow:'linebreak',cellPadding:4},
-        columnStyles:{
-          0:{cellWidth:60},
-          1:{cellWidth:300},
-          2:{cellWidth:30},
-          3:{cellWidth:50},
-          4:{cellWidth:50}
+        theme: 'plain',
+        styles: { fontSize: 10, overflow: 'linebreak', cellPadding: 4 },
+        columnStyles: {
+          0: { cellWidth: 60 },
+          1: { cellWidth: 300 },
+          2: { cellWidth: 30 },
+          3: { cellWidth: 50 },
+          4: { cellWidth: 50 }
         }
       });
 
-      // text boxes
-      invoiceCard.querySelectorAll('.textbox').forEach(box=>{
-        const r=box.getBoundingClientRect(), ir=invoiceCard.getBoundingClientRect();
-        const x=40+(r.left-ir.left)*(w/ir.width);
-        const yPos=40+(r.top-ir.top)*(h/ir.height);
-        doc.setFontSize(12).text(box.textContent.trim(),x,yPos);
+      // Floating text boxes
+      invoiceCard.querySelectorAll('.textbox').forEach(box => {
+        const r = box.getBoundingClientRect();
+        const ir = invoiceCard.getBoundingClientRect();
+        const x = 40 + (r.left - ir.left) * (pageW / ir.width);
+        const yPos = 40 + (r.top - ir.top) * (pageH / ir.height);
+        doc.setFontSize(12).text(box.textContent.trim(), x, yPos);
       });
 
-      // total
-      const finalY=doc.lastAutoTable.finalY+20;
+      // Grand total
+      const finalY = doc.lastAutoTable.finalY + 20;
       doc.setFontSize(14)
-         .text(`Total: ${invTotal.textContent}`, w-40, finalY, {align:'right'});
+         .text(`Total: ${invTotal.textContent}`, pageW - 40, finalY, { align: 'right' });
 
       doc.save('estimate.pdf');
     };
