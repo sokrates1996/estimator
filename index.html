@@ -12,129 +12,100 @@
       --dark:    #34495e;
     }
     body {
-      margin: 0;
-      padding: 2rem;
+      margin:0; padding:2rem;
       font-family: Arial, sans-serif;
       background: var(--light);
     }
     .invoice-container {
       position: relative;
-      max-width: 800px;
-      margin: auto;
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      padding: 2rem;
-      overflow: visible;
+      max-width: 800px; margin: auto;
+      background: #fff; border-radius:8px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.08);
+      padding:2rem; overflow:visible;
     }
-    /* blended gradient + paint splash watermark */
+    /* watermark */
     .invoice-container::before {
-      content: "";
-      position: absolute; top:0; right:0; bottom:0; left:0;
+      content:""; position:absolute;
+      inset:0;
       background:
         linear-gradient(135deg, rgba(255,153,204,0.1), rgba(153,204,255,0.1)),
         url("splashedpaint.jpg") center/cover no-repeat;
-      opacity: 0.15;
-      z-index: 0;
+      opacity:0.15; z-index:0;
     }
-    .invoice-container > * { position: relative; z-index:1; }
+    .invoice-container>*, .invoice-container * {
+      position: relative; z-index:1;
+    }
     .invoice-container.hide-ui .actions,
-    .invoice-container.hide-ui .add-btn {
+    .invoice-container.hide-ui .add-line {
       display: none !important;
     }
 
     /* header */
-    .invoice-header {
-      display: flex; justify-content: space-between; align-items: center;
-    }
-    .company-left {
-      display: flex; align-items: center;
-    }
-    .logo {
-      height: 120px;
-      margin-right: 1rem;
-    }
-    .company-name {
-      font-size: 1.8rem;
-      color: var(--primary);
-      margin: 0;
-    }
+    .invoice-header { display:flex; justify-content:space-between; align-items:center; }
+    .company-left { display:flex; align-items:center; }
+    .logo { height:120px; margin-right:1rem; }
+    .company-name { font-size:1.8rem; color:var(--primary); margin:0; }
 
     /* meta & recipient */
     .invoice-meta {
-      background: var(--mid);
-      color: #fff;
-      padding: 1rem;
-      border-radius: 4px;
-      width: 200px;
-      font-size: 0.9rem;
+      background:var(--mid); color:#fff;
+      padding:1rem; border-radius:4px; width:200px;
+      font-size:0.9rem;
     }
-    .meta-row {
-      display: flex; justify-content: space-between;
-      margin-bottom: 0.5rem;
-    }
-    .meta-row input {
-      width: 80px; border: none; border-radius:2px; padding:0.2rem;
-    }
+    .meta-row { display:flex; justify-content:space-between; margin-bottom:0.5rem; }
+    .meta-row input { width:80px; border:none; border-radius:2px; padding:0.2rem; }
     .meta-total {
-      background: var(--dark);
-      padding: 0.6rem; border-radius:3px;
-      display:flex;justify-content:space-between;font-weight:bold;
+      background:var(--dark); padding:0.6rem; border-radius:3px;
+      display:flex; justify-content:space-between; font-weight:bold;
     }
     .recipient {
-      margin-top:2rem; text-transform:uppercase;font-size:0.9rem;
+      margin-top:2rem; text-transform:uppercase; font-size:0.9rem;
     }
     .recipient input {
-      width:100%; border:none;
-      border-bottom:1px solid var(--mid);
+      width:100%; border:none; border-bottom:1px solid var(--mid);
       margin-bottom:0.5rem; padding:0.3rem 0;
     }
 
-    /* editable items table */
+    /* items grid */
     .section-title {
-      margin-top:2rem;color:var(--primary);
-      font-size:1.2rem;border-bottom:1px solid var(--mid);
+      margin-top:2rem; color:var(--primary);
+      font-size:1.2rem; border-bottom:1px solid var(--mid);
     }
-    .items-table {
-      width:100%;border-collapse:collapse;margin-top:1rem;
+    .items-grid {
+      display: grid;
+      grid-template-columns: 2fr 5fr 1fr 1fr 1fr;
+      grid-gap: 1rem;
+      margin-top:1rem;
     }
-    .items-table th {
-      background:var(--light);padding:1rem;
-      font-weight:normal;text-align:left;line-height:1.4;
+    .items-grid .header {
+      font-weight: bold; background:var(--light);
+      padding:0.75rem; line-height:1.4;
     }
-    .items-table td {
-      border-bottom:1px solid #eee;padding:1rem;
-      vertical-align:top;line-height:1.4;
-      /* make cells editable */
-      background: transparent;
+    .items-grid .cell {
+      padding:0.75rem; line-height:1.4; vertical-align:top;
+      border-bottom:1px solid #eee;
     }
-    /* turn cells into editable regions */
-    .items-table td.editable {
-      cursor: text;
+    .items-grid .cell.editable {
+      cursor:text;
     }
-    /* placeholder text */
-    .items-table td.editable:empty:before {
+    .items-grid .cell.editable:empty:before {
       content: attr(data-placeholder);
       color: #aaa;
     }
-    /* keep rows together */
-    .items-table tr {
-      page-break-inside: avoid;
-      break-inside: avoid;
-    }
 
-    /* buttons */
-    .add-btn, .actions button {
-      background:var(--accent);color:#fff;border:none;
-      border-radius:4px;padding:0.6rem 1rem;
-      cursor:pointer;font-size:0.95rem;margin-top:0.5rem;
+    /* enforce no split */
+    .items-grid .cell { break-inside: avoid; }
+    
+    /* controls */
+    .add-line, .actions button {
+      background:var(--accent); color:#fff; border:none;
+      border-radius:4px; padding:0.6rem 1rem;
+      cursor:pointer; font-size:0.95rem; margin-top:0.5rem;
     }
-    .add-btn:hover, .actions button:hover {
+    .add-line:hover, .actions button:hover {
       background:var(--dark);
     }
-    .actions {
-      margin-top:2rem;text-align:right;
-    }
+    .actions { margin-top:2rem; text-align:right; }
   </style>
 </head>
 <body>
@@ -175,19 +146,17 @@
     </section>
 
     <h2 class="section-title">For Services Rendered</h2>
-    <table class="items-table" id="itemsTable">
-      <thead>
-        <tr>
-          <th>Service</th>
-          <th>Description</th>
-          <th>Qty.</th>
-          <th>Unit Price</th>
-          <th>Line Total</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-    <button id="addItem" class="add-btn">+ Add Item</button>
+    
+    <div class="items-grid" id="itemsGrid">
+      <!-- column headers -->
+      <div class="header">Service</div>
+      <div class="header">Description</div>
+      <div class="header">Qty.</div>
+      <div class="header">Unit Price</div>
+      <div class="header">Line Total</div>
+      <!-- rows will go here -->
+    </div>
+    <button id="addLine" class="add-line">+ Add Line</button>
 
     <div class="actions">
       <button id="computeBtn">Compute Total</button>
@@ -198,42 +167,46 @@
   <script>
     window.onload = () => {
       const card = document.getElementById('invoiceCard');
-      const tableBody = document.querySelector('#itemsTable tbody');
+      const grid = document.getElementById('itemsGrid');
 
-      // helper to make a cell editable
+      // create an editable cell
       function makeCell(placeholder) {
-        const td = document.createElement('td');
-        td.classList.add('editable');
-        td.setAttribute('contenteditable', 'true');
-        td.setAttribute('data-placeholder', placeholder);
-        return td;
+        const div = document.createElement('div');
+        div.className = 'cell editable';
+        div.setAttribute('contenteditable','true');
+        div.setAttribute('data-placeholder', placeholder);
+        return div;
+      }
+      // create a non‑editable total cell
+      function makeTotalCell() {
+        const div = document.createElement('div');
+        div.className = 'cell';
+        div.textContent = '$0.00';
+        return div;
       }
 
-      // add a new editable row
-      document.getElementById('addItem').onclick = () => {
-        const tr = document.createElement('tr');
-        tr.appendChild(makeCell('Service'));
-        tr.appendChild(makeCell('Description'));
-        tr.appendChild(makeCell('0'));     // qty
-        tr.appendChild(makeCell('0.00'));  // unit price
-        const totalTd = document.createElement('td');
-        totalTd.className = 'line-total';
-        totalTd.textContent = '$0.00';
-        tr.appendChild(totalTd);
-        tableBody.appendChild(tr);
+      // add a new row
+      document.getElementById('addLine').onclick = () => {
+        grid.appendChild(makeCell('Service'));
+        grid.appendChild(makeCell('Description'));
+        grid.appendChild(makeCell('0'));
+        grid.appendChild(makeCell('0.00'));
+        grid.appendChild(makeTotalCell());
       };
 
-      // compute totals by reading textContent
+      // compute total
       document.getElementById('computeBtn').onclick = () => {
         let sum = 0;
-        tableBody.querySelectorAll('tr').forEach(tr => {
-          const qty   = parseFloat(tr.children[2].textContent) || 0;
-          const price = parseFloat(tr.children[3].textContent) || 0;
-          const line  = qty * price;
-          tr.children[4].textContent = '$' + line.toFixed(2);
+        // skip first 5 header cells
+        const cells = Array.from(grid.children).slice(5);
+        for (let i=0; i<cells.length; i+=5) {
+          const qty = parseFloat(cells[i+2].textContent) || 0;
+          const price = parseFloat(cells[i+3].textContent) || 0;
+          const line = qty*price;
+          cells[i+4].textContent = '$'+line.toFixed(2);
           sum += line;
-        });
-        document.getElementById('invoiceTotal').textContent = '$' + sum.toFixed(2);
+        }
+        document.getElementById('invoiceTotal').textContent = '$'+sum.toFixed(2);
       };
 
       // download PDF
@@ -242,10 +215,10 @@
         html2pdf()
           .from(card)
           .set({
-            margin:      [0.7,0.7,0.7,0.7],
-            filename:    'estimate.pdf',
-            html2canvas: { scale: 2 },
-            jsPDF:       { unit:'in', format:'letter', orientation:'portrait' }
+            margin:    [0.7,0.7,0.7,0.7],
+            filename:  'estimate.pdf',
+            html2canvas:{ scale:2 },
+            jsPDF:     { unit:'in', format:'letter', orientation:'portrait' }
           })
           .save()
           .finally(() => card.classList.remove('hide-ui'));
