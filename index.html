@@ -13,7 +13,6 @@
     }
     body { margin:0; padding:2rem; font-family:Arial,sans-serif; background:var(--light); }
 
-    /* Toolbar & Buttons */
     .toolbar { text-align:right; margin-bottom:1rem; }
     .toolbar button,
     .add-row,
@@ -26,7 +25,6 @@
     .add-row:hover,
     .actions button:hover { background:var(--dark); }
 
-    /* Invoice Container & Watermark */
     .invoice-container {
       position:relative; max-width:800px; margin:auto;
       background:#fff; border-radius:8px;
@@ -45,19 +43,22 @@
     .invoice-container.hide-ui .actions,
     .invoice-container.hide-ui .add-row { display:none!important; }
 
-    /* Header: Logo, Name, Company Info */
-    .invoice-header { display:flex; justify-content:space-between; align-items:center; }
+    .invoice-header { display:flex; justify-content:space-between; align-items:flex-start; }
     .company-left { display:flex; align-items:center; }
-    .logo { height:120px; margin-right:1rem; }
-    .company-name { font-size:1.8rem; color:var(--primary); margin:0; }
-    .company-info { margin-top:0.4rem; font-size:0.9rem; }
+    .logo { height:80px; margin-right:1rem; }
+    .company-text {
+      display:flex; flex-direction:column;
+    }
+    .company-name {
+      font-size:1.6rem; color:var(--primary); margin:0;
+    }
+    .company-info { font-size:0.9rem; margin-top:0.4rem; }
     .company-info input {
       display:block; width:250px; border:none;
       border-bottom:1px solid var(--mid);
       margin:0.2rem 0; padding:0.2rem 0;
     }
 
-    /* Invoice Meta & Recipient */
     .invoice-meta {
       background:var(--mid); color:#fff;
       padding:1rem; border-radius:4px; width:200px; font-size:0.9rem;
@@ -68,23 +69,22 @@
       background:var(--dark); padding:0.6rem; border-radius:3px;
       display:flex; justify-content:space-between; font-weight:bold;
     }
+
     .recipient { margin-top:2rem; text-transform:uppercase; font-size:0.9rem; }
     .recipient input {
       width:100%; border:none; border-bottom:1px solid var(--mid);
       margin-bottom:0.5rem; padding:0.3rem 0;
     }
 
-    /* Fixed‑layout Table */
     table {
       width:100%; margin-top:2rem;
-      border-collapse:collapse;
-      table-layout:fixed; /* fixed column widths */
+      border-collapse:collapse; table-layout:fixed;
     }
-    colgroup col:nth-child(1) { width: 60px; }
-    colgroup col:nth-child(2) { width:300px; }
-    colgroup col:nth-child(3) { width:30px; }
-    colgroup col:nth-child(4) { width:50px; }
-    colgroup col:nth-child(5) { width:50px; }
+    colgroup col:nth-child(1){width:60px;}
+    colgroup col:nth-child(2){width:300px;}
+    colgroup col:nth-child(3){width:30px;}
+    colgroup col:nth-child(4){width:50px;}
+    colgroup col:nth-child(5){width:50px;}
     th, td {
       border:none!important; background:transparent!important;
       padding:0.4rem 0; line-height:1.4; overflow-wrap:break-word;
@@ -93,7 +93,6 @@
     td.editable { cursor:text; }
     td.editable:empty:before { content:attr(data-placeholder); color:#aaa; }
 
-    /* Floating Text Boxes */
     .textbox {
       position:absolute; min-width:120px; min-height:30px;
       padding:4px 8px; background:rgba(255,255,255,0.8);
@@ -105,6 +104,7 @@
   </style>
 </head>
 <body>
+
   <div class="toolbar">
     <button id="addTextBox">+ Add Text Box</button>
   </div>
@@ -113,7 +113,7 @@
     <header class="invoice-header">
       <div class="company-left">
         <img src="elvisofcolour.jpeg" class="logo" alt="Logo">
-        <div>
+        <div class="company-text">
           <h1 class="company-name">Elvis Of Colours</h1>
           <div class="company-info">
             <input id="companyAddress" placeholder="Your Company Address">
@@ -138,11 +138,7 @@
 
     <table id="itemsTable">
       <colgroup>
-        <col>
-        <col>
-        <col>
-        <col>
-        <col>
+        <col><col><col><col><col>
       </colgroup>
       <thead>
         <tr>
@@ -172,7 +168,6 @@
     const tbody       = document.querySelector('#itemsTable tbody');
     const invTotal    = document.getElementById('invTotal');
 
-    // Make editable table cell
     function makeCell(placeholder){
       const td = document.createElement('td');
       td.className       = 'editable';
@@ -181,7 +176,6 @@
       return td;
     }
 
-    // Add new data row
     document.getElementById('addRow').onclick = () => {
       const tr = document.createElement('tr');
       tr.appendChild(makeCell('Service'));
@@ -195,20 +189,18 @@
     };
     document.getElementById('addRow').click();
 
-    // Compute totals
     document.getElementById('computeBtn').onclick = () => {
       let sum = 0;
-      tbody.querySelectorAll('tr').forEach(tr => {
-        const qty   = parseFloat(tr.cells[2].textContent) || 0;
-        const price = parseFloat(tr.cells[3].textContent) || 0;
-        const line  = qty * price;
-        tr.cells[4].textContent = '$' + line.toFixed(2);
+      tbody.querySelectorAll('tr').forEach(tr=>{
+        const qty   = parseFloat(tr.cells[2].textContent)||0;
+        const price = parseFloat(tr.cells[3].textContent)||0;
+        const line  = qty*price;
+        tr.cells[4].textContent = '$'+line.toFixed(2);
         sum += line;
       });
-      invTotal.textContent = '$' + sum.toFixed(2);
+      invTotal.textContent = '$'+sum.toFixed(2);
     };
 
-    // Add floating text box
     document.getElementById('addTextBox').onclick = () => {
       const box = document.createElement('div');
       box.className       = 'textbox';
@@ -221,26 +213,24 @@
       box.focus();
     };
 
-    // Make element draggable
     function makeDraggable(el){
       let sX,sY,oX,oY;
       el.onmousedown = e => {
         if(e.button!==0) return;
-        sX = e.clientX; sY = e.clientY;
-        const r = el.getBoundingClientRect();
-        oX = r.left; oY = r.top;
-        document.onmousemove = drag;
-        document.onmouseup = () => document.onmousemove = document.onmouseup = null;
+        sX=e.clientX; sY=e.clientY;
+        const r=el.getBoundingClientRect();
+        oX=r.left; oY=r.top;
+        document.onmousemove=drag;
+        document.onmouseup=()=>document.onmousemove=document.onmouseup=null;
       };
       function drag(e){
-        const dx = e.clientX - sX, dy = e.clientY - sY;
-        const ir = invoiceCard.getBoundingClientRect();
-        el.style.left = (oX + dx - ir.left) + 'px';
-        el.style.top  = (oY + dy - ir.top ) + 'px';
+        const dx=e.clientX-sX, dy=e.clientY-sY;
+        const ir=invoiceCard.getBoundingClientRect();
+        el.style.left = (oX+dx-ir.left)+'px';
+        el.style.top  = (oY+dy-ir.top )+'px';
       }
     }
 
-    // Load image as data URL
     function loadImageDataURL(src, alpha=1){
       return new Promise((res, rej) => {
         const img = new Image();
@@ -249,7 +239,7 @@
           const c = document.createElement('canvas');
           c.width = img.width; c.height = img.height;
           const ctx = c.getContext('2d');
-          if(alpha < 1) ctx.globalAlpha = alpha;
+          if(alpha<1) ctx.globalAlpha = alpha;
           ctx.drawImage(img, 0, 0);
           res(c.toDataURL('image/png'));
         };
@@ -257,11 +247,9 @@
       });
     }
 
-    // Download PDF
     document.getElementById('downloadBtn').onclick = async () => {
       document.getElementById('computeBtn').click();
 
-      // Gather table data
       const body = [];
       tbody.querySelectorAll('tr').forEach(tr => {
         body.push([
@@ -273,40 +261,43 @@
         ]);
       });
 
-      // Create PDF
       const doc = new jsPDF({ unit:'pt', format:'letter' });
       const pageW = doc.internal.pageSize.getWidth();
       const pageH = doc.internal.pageSize.getHeight();
 
-      // Watermark
+      // watermark
       const wm = await loadImageDataURL('splatter.avif', 0.15);
       doc.addImage(wm, 'PNG', 0, 0, pageW, pageH);
 
-      // Logo
+      // logo
       const logo = await loadImageDataURL('elvisofcolour.jpeg');
       doc.addImage(logo, 'PNG', 40, 40, 100, 100);
 
-      // Company Info under logo
+      // company name
+      doc.setFontSize(18)
+         .text('Elvis Of Colours', 150, 70);
+
+      // company info
       doc.setFontSize(10)
-         .text(document.getElementById('companyAddress').value, 150, 60)
-         .text(document.getElementById('companyPhone').value, 150, 75);
+         .text(document.getElementById('companyAddress').value, 150, 85)
+         .text(document.getElementById('companyPhone').value, 150, 100);
 
-      // Invoice meta
+      // invoice meta
       doc.setFontSize(12)
-         .text(`Invoice #: ${document.getElementById('invNum').value}`, 160, 90)
-         .text(`Issued: ${document.getElementById('invDate').value}`, 160, 110)
-         .text(`Due: ${document.getElementById('dueDate').value}`, 160, 130);
+         .text(`Invoice #: ${document.getElementById('invNum').value}`,160,120)
+         .text(`Issued: ${document.getElementById('invDate').value}`,160,140)
+         .text(`Due: ${document.getElementById('dueDate').value}`,160,160);
 
-      // Recipient
-      let y = 160;
-      doc.setFontSize(14).text('Recipient:', 40, y);
+      // recipient
+      let y = 190;
+      doc.setFontSize(14).text('Recipient:',40,y);
       y += 18;
       ['clientName','clientAddress','clientPhone'].forEach(id => {
-        doc.setFontSize(12).text(document.getElementById(id).value, 40, y);
+        doc.setFontSize(12).text(document.getElementById(id).value,40,y);
         y += 16;
       });
 
-      // Items table
+      // items table
       doc.autoTable({
         startY: y + 10,
         margin: { left: 40, right: 40 },
@@ -323,16 +314,16 @@
         }
       });
 
-      // Floating text boxes
+      // text boxes
       invoiceCard.querySelectorAll('.textbox').forEach(box => {
-        const r = box.getBoundingClientRect();
+        const r  = box.getBoundingClientRect();
         const ir = invoiceCard.getBoundingClientRect();
-        const x = 40 + (r.left - ir.left) * (pageW / ir.width);
-        const yPos = 40 + (r.top - ir.top) * (pageH / ir.height);
+        const x = 40 + (r.left - ir.left)*(pageW/ir.width);
+        const yPos = 40 + (r.top - ir.top)*(pageH/ir.height);
         doc.setFontSize(12).text(box.textContent.trim(), x, yPos);
       });
 
-      // Grand total
+      // grand total
       const finalY = doc.lastAutoTable.finalY + 20;
       doc.setFontSize(14)
          .text(`Total: ${invTotal.textContent}`, pageW - 40, finalY, { align: 'right' });
