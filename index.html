@@ -12,75 +12,113 @@
       --dark:    #34495e;
     }
     body {
-      margin:0; padding:2rem;
+      margin: 0; padding: 2rem;
       font-family: Arial, sans-serif;
       background: var(--light);
     }
     .invoice-container {
       position: relative;
       max-width: 800px; margin: auto;
-      background: #fff; border-radius:8px;
-      box-shadow:0 4px 12px rgba(0,0,0,0.08);
-      padding:2rem; overflow:visible;
+      background: #fff; border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      padding: 2rem;
+      overflow: visible;
     }
-    /* watermark */
+    /* watermark behind everything */
     .invoice-container::before {
-      content:""; position:absolute; inset:0;
+      content: "";
+      position: absolute; inset: 0;
       background:
-        linear-gradient(135deg, rgba(255,153,204,0.1), rgba(153,204,255,0.1)),
+        linear-gradient(
+          135deg,
+          rgba(255,153,204,0.1),
+          rgba(153,204,255,0.1)
+        ),
         url("splashedpaint.jpg") center/cover no-repeat;
-      opacity:0.15; z-index:0;
+      opacity: 0.15;
+      z-index: 0;
     }
-    .invoice-container>*, .invoice-container * {
-      position: relative; z-index:1;
+    .invoice-container > *, .invoice-container * {
+      position: relative;
+      z-index: 1;
     }
-    /* hide UI on export */
+    /* hide UI during PDF export */
     .invoice-container.hide-ui .actions,
     .invoice-container.hide-ui .add-row {
       display: none !important;
     }
 
     /* header */
-    .invoice-header { display:flex; justify-content:space-between; align-items:center; }
-    .company-left { display:flex; align-items:center; }
-    .logo { height:120px; margin-right:1rem; }
-    .company-name { font-size:1.8rem; color:var(--primary); margin:0; }
+    .invoice-header {
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .company-left {
+      display: flex; align-items: center;
+    }
+    .logo {
+      height: 120px; margin-right: 1rem;
+    }
+    .company-name {
+      font-size: 1.8rem;
+      color: var(--primary);
+      margin: 0;
+    }
 
     /* meta & recipient */
     .invoice-meta {
-      background:var(--mid); color:#fff;
-      padding:1rem; border-radius:4px; width:200px;
-      font-size:0.9rem;
+      background: var(--mid);
+      color: #fff;
+      padding: 1rem;
+      border-radius: 4px;
+      width: 200px;
+      font-size: 0.9rem;
     }
-    .meta-row { display:flex; justify-content:space-between; margin-bottom:0.5rem; }
-    .meta-row input { width:80px; border:none; border-radius:2px; padding:0.2rem; }
+    .meta-row {
+      display: flex; justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+    .meta-row input {
+      width: 80px; border: none; border-radius: 2px;
+      padding: 0.2rem;
+    }
     .meta-total {
-      background:var(--dark); padding:0.6rem; border-radius:3px;
-      display:flex; justify-content:space-between; font-weight:bold;
+      background: var(--dark);
+      padding: 0.6rem;
+      border-radius: 3px;
+      display: flex; justify-content: space-between;
+      font-weight: bold;
     }
     .recipient {
-      margin-top:2rem; text-transform:uppercase; font-size:0.9rem;
+      margin-top: 2rem;
+      text-transform: uppercase;
+      font-size: 0.9rem;
     }
     .recipient input {
-      width:100%; border:none; border-bottom:1px solid var(--mid);
-      margin-bottom:0.5rem; padding:0.3rem 0;
+      width: 100%;
+      border: none;
+      border-bottom: 1px solid var(--mid);
+      margin-bottom: 0.5rem;
+      padding: 0.3rem 0;
     }
 
-    /* remove box styling from table */
-    table, th, td {
+    /* table styling for on‑screen only */
+    table {
+      width: 100%;
+      margin-top: 2rem;
+      border-collapse: collapse;
+    }
+    th, td {
+      /* remove all borders & backgrounds */
       border: none !important;
       background: transparent !important;
+      padding: 0.5rem 0;
+      line-height: 1.4;
     }
-    /* editable table */
-    table { width:100%; margin-top:2rem; }
     th {
-      padding:0.75rem 0; text-align:left; font-weight:bold;
-    }
-    td {
-      padding:0.5rem 0; vertical-align:top; line-height:1.4;
+      font-weight: bold;
     }
     td.editable {
-      cursor:text;
+      cursor: text;
     }
     td.editable:empty:before {
       content: attr(data-placeholder);
@@ -89,14 +127,22 @@
 
     /* controls */
     .add-row, .actions button {
-      background:var(--accent); color:#fff; border:none;
-      border-radius:4px; padding:0.6rem 1rem;
-      cursor:pointer; font-size:0.95rem; margin-top:0.5rem;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 0.6rem 1rem;
+      cursor: pointer;
+      font-size: 0.95rem;
+      margin-top: 0.5rem;
     }
     .add-row:hover, .actions button:hover {
-      background:var(--dark);
+      background: var(--dark);
     }
-    .actions { margin-top:2rem; text-align:right; }
+    .actions {
+      margin-top: 2rem;
+      text-align: right;
+    }
   </style>
 </head>
 <body>
@@ -113,7 +159,7 @@
       <div class="invoice-meta">
         <div class="meta-row"><label>Invoice #</label><input id="invNum" value="0001"></div>
         <div class="meta-row"><label>Issued</label><input id="invDate" type="date"></div>
-        <div class="meta-row"><label>Due</label><input id="invDateDue" type="date"></div>
+        <div class="meta-row"><label>Due</label><input id="dueDate" type="date"></div>
         <div class="meta-total"><span>Total</span><span id="invTotal">$0.00</span></div>
       </div>
     </header>
@@ -122,17 +168,17 @@
       <strong>RECIPIENT:</strong><br>
       <input id="clientName" placeholder="Client Name"><br>
       <input id="clientAddress" placeholder="123 Main St, City, ST ZIP"><br>
-      <input id="clientPhone" placeholder="(555) 000‑0000">
+      <input id="clientPhone" placeholder="(555) 000‑0000">
     </section>
 
     <table id="itemsTable">
       <thead>
         <tr>
-          <th style="width:15%;">Service</th>
-          <th style="width:45%;">Description</th>
-          <th style="width:10%;">Qty.</th>
-          <th style="width:15%;">Unit Price</th>
-          <th style="width:15%;">Line Total</th>
+          <th style="width:80px;">Service</th>
+          <th style="width:250px;">Description</th>
+          <th style="width:40px;">Qty.</th>
+          <th style="width:60px;">Unit Price</th>
+          <th style="width:60px;">Line Total</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -148,17 +194,19 @@
   <script>
     (()=>{
       const { jsPDF } = window.jspdf;
-      const tbody = document.querySelector('#itemsTable tbody');
-      const invTotal = document.getElementById('invTotal');
+      const tbody     = document.querySelector('#itemsTable tbody');
+      const invTotal  = document.getElementById('invTotal');
 
+      // make an editable <td>
       function makeCell(placeholder){
         const td = document.createElement('td');
-        td.className = 'editable';
+        td.className       = 'editable';
         td.contentEditable = 'true';
         td.setAttribute('data-placeholder', placeholder);
         return td;
       }
 
+      // add a new row
       document.getElementById('addRow').onclick = () => {
         const tr = document.createElement('tr');
         tr.appendChild(makeCell('Service'));
@@ -170,9 +218,10 @@
         tr.appendChild(tot);
         tbody.appendChild(tr);
       };
-      // seed first row
+      // seed one row
       document.getElementById('addRow').click();
 
+      // compute totals
       document.getElementById('computeBtn').onclick = () => {
         let sum = 0;
         tbody.querySelectorAll('tr').forEach(tr => {
@@ -185,7 +234,8 @@
         invTotal.textContent = '$' + sum.toFixed(2);
       };
 
-      function getImageDataURL(src, alpha=1){
+      // helper for watermark/logo
+      function loadImageDataURL(src, alpha=1){
         return new Promise((res, rej) => {
           const img = new Image();
           img.src = src;
@@ -194,16 +244,19 @@
             c.width = img.width; c.height = img.height;
             const ctx = c.getContext('2d');
             if(alpha<1) ctx.globalAlpha = alpha;
-            ctx.drawImage(img, 0, 0);
+            ctx.drawImage(img,0,0);
             res(c.toDataURL('image/png'));
           };
           img.onerror = rej;
         });
       }
 
+      // download PDF
       document.getElementById('downloadBtn').onclick = async () => {
+        // ensure totals up to date
         document.getElementById('computeBtn').click();
 
+        // collect table data
         const body = [];
         tbody.querySelectorAll('tr').forEach(tr => {
           body.push([
@@ -215,23 +268,25 @@
           ]);
         });
 
+        // init jsPDF
         const doc = new jsPDF({ unit:'pt', format:'letter' });
         const pageW = doc.internal.pageSize.getWidth();
         const pageH = doc.internal.pageSize.getHeight();
 
         // watermark
-        const wm = await getImageDataURL('splashedpaint.jpg', 0.15);
+        const wm = await loadImageDataURL('splashedpaint.jpg', 0.15);
         doc.addImage(wm, 'PNG', 0, 0, pageW, pageH);
 
         // logo
-        const logo = await getImageDataURL('elvisofcolour.jpeg');
-        doc.addImage(logo, 'PNG', 40, 40, 100, 100* (new Image().height / new Image().width));
+        const logoData = await loadImageDataURL('elvisofcolour.jpeg');
+        // draw at (40,40) with 100px width
+        doc.addImage(logoData, 'PNG', 40, 40, 100, 100);
 
         // header text
         doc.setFontSize(12)
            .text(`Invoice #: ${document.getElementById('invNum').value}`, 160, 60)
            .text(`Issued: ${document.getElementById('invDate').value}`, 160, 80)
-           .text(`Due: ${document.getElementById('invDateDue').value}`, 160, 100);
+           .text(`Due: ${document.getElementById('dueDate').value}`, 160, 100);
 
         // recipient
         let y = 140;
@@ -242,21 +297,31 @@
           y += 16;
         });
 
-        // table
+        // draw the table with no borders
         doc.autoTable({
           startY: y + 10,
-          margin: { left:40, right:40 },
-          head: [['Service','Description','Qty','Unit','Total']],
-          body: body,
+          margin: { left: 40, right: 40 },
+          head: [['Service','Description','Qty','Unit Price','Line Total']],
+          body,
           theme: 'plain',
-          styles: { fontSize:10, cellPadding:4 },
-          columnStyles: { 1: { cellWidth:200 } }
+          styles: {
+            fontSize: 10,
+            overflow: 'linebreak',
+            cellPadding: 4
+          },
+          columnStyles: {
+            0: { cellWidth: 80 },
+            1: { cellWidth: 250 },
+            2: { cellWidth: 40 },
+            3: { cellWidth: 60 },
+            4: { cellWidth: 60 }
+          }
         });
 
-        // total
+        // grand total
         const finalY = doc.lastAutoTable.finalY + 20;
         doc.setFontSize(14)
-           .text(`Total: ${invTotal.textContent}`, pageW - 40, finalY, { align:'right' });
+           .text(`Total: ${invTotal.textContent}`, pageW - 40, finalY, { align: 'right' });
 
         doc.save('estimate.pdf');
       };
