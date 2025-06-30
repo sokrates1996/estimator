@@ -38,28 +38,15 @@
       position: relative;
       z-index: 1;
     }
+    /* hide UI during export */
     .hide-ui .add-btn,
     .hide-ui .actions {
       display: none !important;
     }
-    .invoice-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-    }
-    .company-left {
-      display: flex;
-      align-items: center;
-    }
-    .logo {
-      height: 60px;
-      margin-right: 1rem;
-    }
-    .company-name {
-      margin: 0;
-      color: var(--primary);
-      font-size: 1.8rem;
-    }
+    .invoice-header { display: flex; justify-content: space-between; align-items: flex-start; }
+    .company-left { display: flex; align-items: center; }
+    .logo { height: 60px; margin-right: 1rem; }
+    .company-name { margin: 0; color: var(--primary); font-size: 1.8rem; }
     .invoice-meta {
       background: var(--mid);
       border-radius: 4px;
@@ -69,23 +56,18 @@
       font-size: 0.9rem;
     }
     .invoice-meta .meta-row {
-      display: flex;
-      justify-content: space-between;
+      display: flex; justify-content: space-between;
       margin-bottom: 0.5rem;
     }
     .invoice-meta label { font-weight: bold; }
     .invoice-meta input {
-      width: 80px;
-      border: none;
-      border-radius: 2px;
-      padding: 0.2rem;
+      width: 80px; border: none; border-radius: 2px; padding: 0.2rem;
     }
     .invoice-meta .meta-total {
       background: var(--dark);
       padding: 0.6rem;
       border-radius: 3px;
-      display: flex;
-      justify-content: space-between;
+      display: flex; justify-content: space-between;
       font-weight: bold;
       margin-top: 0.5rem;
     }
@@ -118,16 +100,12 @@
       font-weight: normal;
     }
     .items-table td {
-      border-bottom: 1px solid #eee;
-      padding: 0.6rem;
+      border-bottom: 1px solid #eee; padding: 0.6rem;
     }
     .items-table input,
     .items-table textarea {
-      width: 100%;
-      border: 1px solid var(--mid);
-      border-radius: 3px;
-      padding: 0.3rem;
-      box-sizing: border-box;
+      width: 100%; border: 1px solid var(--mid);
+      border-radius: 3px; padding: 0.3rem; box-sizing: border-box;
     }
     .items-table textarea { resize: vertical; }
     .add-btn,
@@ -142,22 +120,25 @@
       font-size: 0.9rem;
     }
     .add-btn:hover,
-    .actions button:hover { background: var(--dark); }
+    .actions button:hover {
+      background: var(--dark);
+    }
     .actions { margin-top: 2rem; text-align: right; }
   </style>
 </head>
 <body>
-  <!-- Load html2canvas & jsPDF -->
+  <!-- html2canvas & jsPDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <div id="invoiceCard" class="invoice-container">
-    <!-- Multi‑color tribal watermark (replace URL!) -->
-    <img src="YOUR_TRIBAL_PATTERN_URL" class="watermark-img" alt="">
+    <!-- tribal watermark -->
+    <img src="YOUR_TRIBAL_PATTERN_URL" class="watermark-img" alt="Watermark">
 
     <header class="invoice-header">
       <div class="company-left">
-        <img src="https://i.imgur.com/nIdc6aB.jpeg" class="logo" alt="Elvis Of Colours Logo">
+        <!-- crossorigin ensures html2canvas can pull it in -->
+        <img src="https://i.imgur.com/nIdc6aB.jpeg" crossorigin="anonymous" class="logo" alt="Elvis Of Colours Logo">
         <h1 class="company-name">Elvis Of Colours</h1>
       </div>
       <div class="invoice-meta">
@@ -239,17 +220,14 @@
       document.getElementById('downloadBtn').onclick = async () => {
         const card = document.getElementById('invoiceCard');
         card.classList.add('hide-ui');
-
-        // allow CSS to apply
+        // give CSS a moment
         await new Promise(r => setTimeout(r, 100));
-
-        // capture with html2canvas
-        html2canvas(card, { scale: 2 }).then(canvas => {
+        // capture
+        html2canvas(card, { useCORS: true, scale: 2 }).then(canvas => {
           const imgData = canvas.toDataURL('image/png');
           const pdf = new jsPDF({ unit: 'pt', format: 'letter' });
           const pageW = pdf.internal.pageSize.getWidth();
           const pageH = pdf.internal.pageSize.getHeight();
-          // fit image to page
           const ratio = Math.min(pageW / canvas.width, pageH / canvas.height);
           const imgW = canvas.width * ratio;
           const imgH = canvas.height * ratio;
