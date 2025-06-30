@@ -25,8 +25,7 @@
     }
     /* watermark */
     .invoice-container::before {
-      content:""; position:absolute;
-      inset:0;
+      content:""; position:absolute; inset:0;
       background:
         linear-gradient(135deg, rgba(255,153,204,0.1), rgba(153,204,255,0.1)),
         url("splashedpaint.jpg") center/cover no-repeat;
@@ -35,8 +34,9 @@
     .invoice-container>*, .invoice-container * {
       position: relative; z-index:1;
     }
+    /* hide UI on export */
     .invoice-container.hide-ui .actions,
-    .invoice-container.hide-ui .add-line {
+    .invoice-container.hide-ui .add-row {
       display: none !important;
     }
 
@@ -66,97 +66,74 @@
       margin-bottom:0.5rem; padding:0.3rem 0;
     }
 
-    /* items grid */
-    .section-title {
-      margin-top:2rem; color:var(--primary);
-      font-size:1.2rem; border-bottom:1px solid var(--mid);
+    /* editable table */
+    table { width:100%; border-collapse:collapse; margin-top:2rem; }
+    th {
+      background:var(--light); padding:0.75rem; text-align:left;
+      font-weight:normal;
     }
-    .items-grid {
-      display: grid;
-      grid-template-columns: 2fr 5fr 1fr 1fr 1fr;
-      grid-gap: 1rem;
-      margin-top:1rem;
-    }
-    .items-grid .header {
-      font-weight: bold; background:var(--light);
-      padding:0.75rem; line-height:1.4;
-    }
-    .items-grid .cell {
-      padding:0.75rem; line-height:1.4; vertical-align:top;
+    td {
+      padding:0.75rem; vertical-align:top; line-height:1.4;
       border-bottom:1px solid #eee;
     }
-    .items-grid .cell.editable {
+    td.editable {
       cursor:text;
     }
-    .items-grid .cell.editable:empty:before {
-      content: attr(data-placeholder);
-      color: #aaa;
+    td.editable:empty:before {
+      content:attr(data-placeholder); color:#aaa;
     }
 
-    /* enforce no split */
-    .items-grid .cell { break-inside: avoid; }
-    
     /* controls */
-    .add-line, .actions button {
+    .add-row, .actions button {
       background:var(--accent); color:#fff; border:none;
       border-radius:4px; padding:0.6rem 1rem;
       cursor:pointer; font-size:0.95rem; margin-top:0.5rem;
     }
-    .add-line:hover, .actions button:hover {
+    .add-row:hover, .actions button:hover {
       background:var(--dark);
     }
     .actions { margin-top:2rem; text-align:right; }
   </style>
 </head>
 <body>
-  <!-- html2pdf.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+  <!-- jsPDF + AutoTable -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
 
   <div id="invoiceCard" class="invoice-container">
     <header class="invoice-header">
       <div class="company-left">
-        <img src="elvisofcolour.jpeg" class="logo" alt="Elvis Of Colours Logo">
+        <img src="elvisofcolour.jpeg" class="logo" alt="Logo">
         <h1 class="company-name">Elvis Of Colours</h1>
       </div>
       <div class="invoice-meta">
-        <div class="meta-row">
-          <label>Invoice #</label>
-          <input id="invoiceNumber" value="0001">
-        </div>
-        <div class="meta-row">
-          <label>Issued</label>
-          <input id="issueDate" type="date">
-        </div>
-        <div class="meta-row">
-          <label>Due</label>
-          <input id="dueDate" type="date">
-        </div>
-        <div class="meta-total">
-          <span>Total</span>
-          <span id="invoiceTotal">$0.00</span>
-        </div>
+        <div class="meta-row"><label>Invoice #</label><input id="invNum" value="0001"></div>
+        <div class="meta-row"><label>Issued</label><input id="invDate" type="date"></div>
+        <div class="meta-row"><label>Due</label><input id="dueDate" type="date"></div>
+        <div class="meta-total"><span>Total</span><span id="invTotal">$0.00</span></div>
       </div>
     </header>
 
     <section class="recipient">
       <strong>RECIPIENT:</strong><br>
       <input id="clientName" placeholder="Client Name"><br>
-      <input id="clientAddress" placeholder="123 Main St, City, ST ZIP"><br>
-      <input id="clientPhone" placeholder="(555) 000‑0000">
+      <input id="clientAddress" placeholder="123 Main St, City, ST ZIP"><br>
+      <input id="clientPhone" placeholder="(555) 000‑0000">
     </section>
 
-    <h2 class="section-title">For Services Rendered</h2>
-    
-    <div class="items-grid" id="itemsGrid">
-      <!-- column headers -->
-      <div class="header">Service</div>
-      <div class="header">Description</div>
-      <div class="header">Qty.</div>
-      <div class="header">Unit Price</div>
-      <div class="header">Line Total</div>
-      <!-- rows will go here -->
-    </div>
-    <button id="addLine" class="add-line">+ Add Line</button>
+    <table id="itemsTable">
+      <thead>
+        <tr>
+          <th style="width:15%;">Service</th>
+          <th style="width:45%;">Description</th>
+          <th style="width:10%;">Qty.</th>
+          <th style="width:15%;">Unit Price</th>
+          <th style="width:15%;">Line Total</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <button id="addRow" class="add-row">+ Add Row</button>
 
     <div class="actions">
       <button id="computeBtn">Compute Total</button>
@@ -165,65 +142,137 @@
   </div>
 
   <script>
-    window.onload = () => {
-      const card = document.getElementById('invoiceCard');
-      const grid = document.getElementById('itemsGrid');
+    (()=>{
+      const { jsPDF } = window.jspdf;
+      const tbody = document.querySelector('#itemsTable tbody');
+      const invTotal = document.getElementById('invTotal');
 
-      // create an editable cell
-      function makeCell(placeholder) {
-        const div = document.createElement('div');
-        div.className = 'cell editable';
-        div.setAttribute('contenteditable','true');
-        div.setAttribute('data-placeholder', placeholder);
-        return div;
-      }
-      // create a non‑editable total cell
-      function makeTotalCell() {
-        const div = document.createElement('div');
-        div.className = 'cell';
-        div.textContent = '$0.00';
-        return div;
+      // helper: make an editable cell
+      function makeCell(placeholder){
+        const td = document.createElement('td');
+        td.className = 'editable';
+        td.contentEditable = 'true';
+        td.setAttribute('data-placeholder', placeholder);
+        return td;
       }
 
       // add a new row
-      document.getElementById('addLine').onclick = () => {
-        grid.appendChild(makeCell('Service'));
-        grid.appendChild(makeCell('Description'));
-        grid.appendChild(makeCell('0'));
-        grid.appendChild(makeCell('0.00'));
-        grid.appendChild(makeTotalCell());
+      document.getElementById('addRow').onclick = () => {
+        const tr = document.createElement('tr');
+        tr.appendChild(makeCell('Service'));
+        tr.appendChild(makeCell('Description'));
+        tr.appendChild(makeCell('0'));
+        tr.appendChild(makeCell('0.00'));
+        const tot = document.createElement('td');
+        tot.textContent = '$0.00';
+        tr.appendChild(tot);
+        tbody.appendChild(tr);
       };
+      // seed one row
+      document.getElementById('addRow').click();
 
-      // compute total
+      // compute line totals & grand total
       document.getElementById('computeBtn').onclick = () => {
         let sum = 0;
-        // skip first 5 header cells
-        const cells = Array.from(grid.children).slice(5);
-        for (let i=0; i<cells.length; i+=5) {
-          const qty = parseFloat(cells[i+2].textContent) || 0;
-          const price = parseFloat(cells[i+3].textContent) || 0;
-          const line = qty*price;
-          cells[i+4].textContent = '$'+line.toFixed(2);
+        tbody.querySelectorAll('tr').forEach(tr => {
+          const qty   = parseFloat(tr.cells[2].textContent) || 0;
+          const price = parseFloat(tr.cells[3].textContent) || 0;
+          const line  = qty * price;
+          tr.cells[4].textContent = '$' + line.toFixed(2);
           sum += line;
-        }
-        document.getElementById('invoiceTotal').textContent = '$'+sum.toFixed(2);
+        });
+        invTotal.textContent = '$' + sum.toFixed(2);
       };
 
-      // download PDF
-      document.getElementById('downloadBtn').onclick = () => {
-        card.classList.add('hide-ui');
-        html2pdf()
-          .from(card)
-          .set({
-            margin:    [0.7,0.7,0.7,0.7],
-            filename:  'estimate.pdf',
-            html2canvas:{ scale:2 },
-            jsPDF:     { unit:'in', format:'letter', orientation:'portrait' }
-          })
-          .save()
-          .finally(() => card.classList.remove('hide-ui'));
+      // load image into a canvas and return dataURI
+      function getImageDataURL(src, alpha=1){
+        return new Promise((res, rej) => {
+          const img = new Image();
+          img.src = src;
+          img.onload = () => {
+            const c = document.createElement('canvas');
+            c.width = img.width; c.height = img.height;
+            const ctx = c.getContext('2d');
+            if(alpha<1){ ctx.globalAlpha = alpha; }
+            ctx.drawImage(img, 0, 0, c.width, c.height);
+            res(c.toDataURL('image/png'));
+          };
+          img.onerror = rej;
+        });
+      }
+
+      // build and download PDF
+      document.getElementById('downloadBtn').onclick = async () => {
+        // recompute to be safe
+        document.getElementById('computeBtn').click();
+
+        // gather table data
+        const body = [];
+        tbody.querySelectorAll('tr').forEach(tr => {
+          body.push([
+            tr.cells[0].textContent.trim(),
+            tr.cells[1].textContent.trim(),
+            tr.cells[2].textContent.trim(),
+            tr.cells[3].textContent.trim(),
+            tr.cells[4].textContent.replace('$','')
+          ]);
+        });
+
+        // set up PDF
+        const doc = new jsPDF({ unit:'pt', format:'letter' });
+        const pageW = doc.internal.pageSize.getWidth();
+        const pageH = doc.internal.pageSize.getHeight();
+
+        // watermark
+        const wm = await getImageDataURL('splashedpaint.jpg', 0.15);
+        doc.addImage(wm, 'PNG', 0, 0, pageW, pageH);
+
+        // logo
+        const logoData = await getImageDataURL('elvisofcolour.jpeg');
+        const logoImg  = new Image();
+        logoImg.src    = logoData;
+        await new Promise(r=>logoImg.onload=r);
+        const logoW    = 100;
+        const logoH    = logoImg.height / logoImg.width * logoW;
+        doc.addImage(logoData, 'PNG', 40, 40, logoW, logoH);
+
+        // header text
+        doc.setFontSize(12)
+           .text(`Invoice #: ${document.getElementById('invNum').value}`, 160, 60)
+           .text(`Issued: ${document.getElementById('invDate').value}`, 160, 80)
+           .text(`Due: ${document.getElementById('dueDate').value}`, 160, 100);
+
+        // recipient
+        let y = 140;
+        doc.setFontSize(14).text('Recipient:', 40, y);
+        y += 18;
+        [ 'clientName', 'clientAddress', 'clientPhone' ].forEach(id => {
+          doc.setFontSize(12).text(document.getElementById(id).value, 40, y);
+          y += 16;
+        });
+
+        // items table
+        doc.autoTable({
+          startY: y + 10,
+          margin: { left: 40, right: 40 },
+          head: [['Service','Description','Qty','Unit Price','Line Total']],
+          body: body,
+          styles: { fontSize: 10, cellPadding: 4 },
+          headStyles: { fillColor: [236,240,241] },
+          columnStyles: {
+            1: { cellWidth: 200 } // give description extra width
+          }
+        });
+
+        // grand total
+        const finalY = doc.lastAutoTable.finalY + 20;
+        doc.setFontSize(14)
+           .text(`Total: ${invTotal.textContent}`, pageW - 40, finalY, { align: 'right' });
+
+        // save
+        doc.save('estimate.pdf');
       };
-    };
+    })();
   </script>
 </body>
 </html>
