@@ -27,21 +27,27 @@
       padding: 2rem;
       overflow: hidden;
     }
-    /* your splashedpaint.jpg as a subtle watermark */
+    /* blended gradient + paint splash watermark */
     .invoice-container::before {
       content: "";
       position: absolute;
       top: 0; right: 0; bottom: 0; left: 0;
-      background: url("splashedpaint.jpg") center/cover no-repeat;
-      opacity: 0.08;
+      background:
+        linear-gradient(
+          135deg,
+          rgba(255,153,204,0.1),
+          rgba(153,204,255,0.1)
+        ),
+        url("splashedpaint.jpg") center/cover no-repeat;
+      opacity: 0.15;
       z-index: 0;
     }
-    /* keep all content above the watermark */
+    /* keep content above watermark */
     .invoice-container > * {
       position: relative;
       z-index: 1;
     }
-    /* hide buttons during PDF export */
+    /* hide UI during PDF export */
     .invoice-container.hide-ui .actions,
     .invoice-container.hide-ui .add-btn {
       display: none !important;
@@ -58,7 +64,7 @@
       align-items: center;
     }
     .logo {
-      height: 120px;    /* larger for better resolution */
+      height: 120px;    /* nice and crisp */
       margin-right: 1rem;
     }
     .company-name {
@@ -67,7 +73,7 @@
       margin: 0;
     }
 
-    /* invoice meta */
+    /* invoice meta box */
     .invoice-meta {
       background: var(--mid);
       color: #fff;
@@ -96,7 +102,7 @@
       font-weight: bold;
     }
 
-    /* recipient */
+    /* recipient section */
     .recipient {
       margin-top: 2rem;
       text-transform: uppercase;
@@ -110,7 +116,7 @@
       padding: 0.3rem 0;
     }
 
-    /* items table */
+    /* services table */
     .section-title {
       margin-top: 2rem;
       color: var(--primary);
@@ -124,21 +130,30 @@
     }
     .items-table th {
       background: var(--light);
-      padding: 0.6rem;
+      padding: 1rem;            /* extra padding */
       font-weight: normal;
       text-align: left;
+      line-height: 1.4;
     }
     .items-table td {
       border-bottom: 1px solid #eee;
-      padding: 0.6rem;
+      padding: 1rem;            /* extra padding */
+      vertical-align: top;
+      line-height: 1.4;
+    }
+    /* prevent rows from splitting across pages */
+    .items-table tr {
+      page-break-inside: avoid;
+      break-inside: avoid;
     }
     .items-table input,
     .items-table textarea {
       width: 100%;
       border: 1px solid var(--mid);
       border-radius: 3px;
-      padding: 0.3rem;
+      padding: 0.5rem;          /* a bit more space */
       box-sizing: border-box;
+      line-height: 1.3;
     }
     .items-table textarea {
       resize: vertical;
@@ -151,9 +166,9 @@
       color: #fff;
       border: none;
       border-radius: 4px;
-      padding: 0.4rem 0.8rem;
+      padding: 0.6rem 1rem;      /* bumped up */
       cursor: pointer;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       margin-top: 0.5rem;
     }
     .add-btn:hover,
@@ -199,7 +214,7 @@
     <section class="recipient">
       <strong>RECIPIENT:</strong><br>
       <input id="clientName" placeholder="Client Name"><br>
-      <input id="clientAddress" placeholder="123 Main St, City, ST ZIP"><br>
+      <input id="clientAddress" placeholder="123 Main St, City, ST ZIP"><br>
       <input id="clientPhone" placeholder="(555) 000‑0000">
     </section>
 
@@ -233,7 +248,7 @@
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td><input type="text" placeholder="Service"></td>
-          <td><textarea rows="2" placeholder="Description"></textarea></td>
+          <td><textarea rows="3" placeholder="Description"></textarea></td>
           <td><input type="number" value="0"></td>
           <td><input type="number" value="0" step="0.01"></td>
           <td class="line-total">$0.00</td>`;
@@ -253,16 +268,16 @@
         document.getElementById('invoiceTotal').textContent = '$' + sum.toFixed(2);
       };
 
-      // Download PDF
+      // Download PDF with wider margins and higher resolution
       document.getElementById('downloadBtn').onclick = () => {
         card.classList.add('hide-ui');
         html2pdf()
           .from(card)
           .set({
-            margin:    0.5,
-            filename:  'estimate.pdf',
-            html2canvas: { scale: 2 },
-            jsPDF:     { unit:'in', format:'letter', orientation:'portrait' }
+            margin:       [0.7, 0.7, 0.7, 0.7],  // 0.7" margins
+            filename:     'estimate.pdf',
+            html2canvas:  { scale: 2 },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
           })
           .save()
           .finally(() => card.classList.remove('hide-ui'));
